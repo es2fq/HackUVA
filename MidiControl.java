@@ -4,13 +4,20 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
+/*
+ * 
+ * TO COMPILE:
+ * javac -cp "LeapJava.jar" MidiControl.java
+ * 
+ * 
+ */
+
 public class MidiControl {
 	public static MidiMessage makeMidiMessage() {
 		return null;
 	}
 	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
 	{
-
 		while (true) {
 			//List Midi Devices
 			MidiDevice.Info[] midiInfo = MidiSystem.getMidiDeviceInfo();

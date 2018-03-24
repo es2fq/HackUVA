@@ -4,7 +4,7 @@ import java.awt.PointerInfo;
 import java.util.ArrayList;
 public class InputController {
 	public static ArrayList<Handle> handles = new ArrayList<Handle>();
-	public static Handle mouseHandle = null;// new Handle();//only for testing with the mouse
+	public static Handle mouseHandle = new Handle();//only for testing with the mouse
 	
 	
 	static boolean madeMouseusician = false;

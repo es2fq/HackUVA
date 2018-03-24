@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.io.IOException;
-
+import java.awt.Dimension;
+import javax.swing.JFrame;
+import java.util.Arrays;
 
 /*
  * 
@@ -21,6 +23,7 @@ import java.io.IOException;
 
 public class MidiControl {
 	public static Receiver receiver;
+	public static GraphPanel graphPanel;
 	public static ArrayList<HandleMusician> handleMusicians = new ArrayList<HandleMusician>();
 	public static MidiMessage makeMidiMessage() {
 		return null;
@@ -28,11 +31,21 @@ public class MidiControl {
 	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
 	{
         CoreListener listener = new CoreListener();
-        Controller controller = new Controller();
-        
+		Controller controller = new Controller();
+
         // Have the sample listener receive events from the controller
-        controller.addListener(listener);
-        
+		controller.addListener(listener);
+		
+		int maxDataPoints = 40;
+		int maxScore = 10;
+		
+		graphPanel = new GraphPanel();
+		graphPanel.setPreferredSize(new Dimension(800, 600));
+		JFrame frame = new JFrame("Visualizer");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().add(graphPanel);
+		frame.pack();
+		frame.setLocationRelativeTo(null);
         
 		while (true) {
 			//List Midi Devices
@@ -46,6 +59,8 @@ public class MidiControl {
 			Scanner in = new Scanner(System.in);
 			int input = in.nextInt();
 
+			frame.setVisible(true);
+			
 			if(input == -1)
 			{
 				break;
@@ -55,7 +70,6 @@ public class MidiControl {
 			selectedDevice.open();
 			//Get Sequencer and Receiver, load the File and start playing
 			receiver = selectedDevice.getReceiver();
-
 
 			while (true) {
 				try {
@@ -97,10 +111,7 @@ public class MidiControl {
 			
 		}
 		
-		
-		
-		
-		
+		graphPanel.update();
 	}
 	public static void noteOn(int pitch, int velocity) {
 		try {
@@ -120,7 +131,7 @@ public class MidiControl {
 		//set a handle to act as a pitch handle for a musician
 		MidiControl.handleMusicians.add(new MidiControl.HandleMusician(handle));
 	}
-	private static class HandleMusician {
+	public static class HandleMusician {
 		public InputController.Handle pitchHandle, velocityHandle;
 		int currentPitch = -1;
 		int currentVelocity = 100;

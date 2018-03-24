@@ -36,7 +36,24 @@ class CoreListener extends Listener {
             newHandle.x = h.palmPosition().getX();
             newHandle.y = h.palmPosition().getY();
             newHandle.z = h.palmPosition().getZ();
-            newHandle.fingers = h.fingers().extended().count();
+            int newFingers = h.fingers().extended().count();
+            if (newHandle.lastFingerChangeTime + 150 < System.currentTimeMillis()) {
+            	//the finger change time occured a while ago, so safe to say it is stable
+                if (newHandle.fingers != newFingers) {
+                	if (newFingers > 0) {
+                		newHandle.lastFingerChangeTime = System.currentTimeMillis();
+                	} else {
+                        newHandle.fingers = newFingers;
+                    }
+                } else {
+                    newHandle.fingers = newFingers;
+                }
+            } else {
+            	if (newFingers == 0) {
+            		newHandle.fingers = newFingers;
+            	}
+            }
+            	
             newHandle.lastFrameId = frame.id();
             //System.out.println("H "+newHandle.x+", "+newHandle.y+", "+newHandle.z+", "+newHandle.fingers);
         }

@@ -38,7 +38,7 @@ class CoreListener extends Listener {
             newHandle.z = h.palmPosition().getZ();
             newHandle.fingers = h.fingers().extended().count();
             newHandle.lastFrameId = frame.id();
-            System.out.println("H "+newHandle.x+", "+newHandle.y+", "+newHandle.z+", "+newHandle.fingers);
+            //System.out.println("H "+newHandle.x+", "+newHandle.y+", "+newHandle.z+", "+newHandle.fingers);
         }
 
         Iterator<Integer> handleIterator = handleMap.keySet().iterator();
@@ -53,7 +53,7 @@ class CoreListener extends Listener {
         //System.out.println(handleMap.size());
         
         
-        if (MidiControl.receiver != null) {
+        if (MidiControl.numInstruments != 0 && MidiControl.receivers[MidiControl.numInstruments - 1] != null) {
 			InputController.update();
 			MidiControl.update();
         }

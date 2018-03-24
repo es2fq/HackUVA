@@ -20,8 +20,9 @@ import java.io.IOException;
  */
 
 public class MidiControl {
-	public static Receiver receiver;
+	public static Receiver[] receivers = new Receiver[5];
 	public static ArrayList<HandleMusician> handleMusicians = new ArrayList<HandleMusician>();
+	public static int numInstruments;
 	public static MidiMessage makeMidiMessage() {
 		return null;
 	}
@@ -32,42 +33,49 @@ public class MidiControl {
         
         // Have the sample listener receive events from the controller
         controller.addListener(listener);
-        
-        
-		while (true) {
-			//List Midi Devices
-			MidiDevice.Info[] midiInfo = MidiSystem.getMidiDeviceInfo();
-			int i = 0;
+
+		//Select Device
+		Scanner in = new Scanner(System.in);
+		int input;
+		
+		
+		MidiDevice.Info[] midiInfo = MidiSystem.getMidiDeviceInfo();
+		System.out.println("How many midi devices would you like to connect?");
+	    input = in.nextInt();
+	    numInstruments = input;
+	    
+		for (int a=0; a<numInstruments; a++) {
+			System.out.println("\n\nSelect instrument " + a);
+		    int i = 0;
 			for (MidiDevice.Info info : midiInfo) {
 				System.out.println(i + ": " +info.getName());
 				i+=1;
 			}
-			//Select Device
-			Scanner in = new Scanner(System.in);
-			int input = in.nextInt();
-
+		    input = in.nextInt();
 			if(input == -1)
 			{
+				numInstruments = a;
 				break;
 			}
 			//Get Device and Open it
 			MidiDevice selectedDevice = MidiSystem.getMidiDevice(midiInfo[input]);
 			selectedDevice.open();
-			//Get Sequencer and Receiver, load the File and start playing
-			receiver = selectedDevice.getReceiver();
-
-
-			while (true) {
-				try {
-					Thread.sleep(25);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-			
+			receivers[a] = selectedDevice.getReceiver();
+		    if (a > 0) {
+		    	System.out.println(receivers[a] == receivers[a-1]);
+		    }
 		}
+
+
+		while (true) {
+			try {
+				Thread.sleep(25);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+			
         // Remove the sample listener when done
-        controller.removeListener(listener);
 	}
 	public static void update() {
 		Iterator<HandleMusician> it = handleMusicians.iterator();
@@ -77,29 +85,46 @@ public class MidiControl {
 				//remove musicians with invalid pitch handles, like if the users hand moves away from the leap motion
 				it.remove();
 				if (handleMusician.notePlaying) {
-					noteOff(handleMusician.currentPitch, handleMusician.currentVelocity);
+					noteOff(handleMusician.currentPitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
 				}
 			} else {
 				int pitch = (int)(handleMusician.pitchHandle.y / 10);
 				pitch = pitch % 128;
 				
-				
+				int selectedInstrument = handleMusician.pitchHandle.fingers - 1;
+				if (selectedInstrument > numInstruments - 1) {
+					selectedInstrument = numInstruments - 1;
+				}
 				//play the note
-				if (handleMusician.pitchHandle.fingers != 0) {
-					if (handleMusician.notePlaying) {
-						if (pitch != handleMusician.currentPitch) {
-							noteOff(handleMusician.currentPitch, handleMusician.currentVelocity);
-							noteOn(pitch, handleMusician.currentVelocity);
+				if (selectedInstrument >= 0) {
+					if (selectedInstrument == handleMusician.currentInstrument) { // if you have teh same instrument
+						if (handleMusician.notePlaying) {
+							if (pitch != handleMusician.currentPitch) {
+								noteOff(handleMusician.currentPitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
+								noteOn(pitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
+								handleMusician.currentPitch = pitch;
+							}
+						} else {
+							noteOn(pitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
 							handleMusician.currentPitch = pitch;
+							handleMusician.notePlaying = true;
 						}
 					} else {
-						noteOn(pitch, handleMusician.currentVelocity);
-						handleMusician.currentPitch = pitch;
-						handleMusician.notePlaying = true;
+						if (handleMusician.notePlaying) {
+							noteOff(handleMusician.currentPitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
+							handleMusician.currentInstrument = selectedInstrument;
+							noteOn(pitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
+							handleMusician.currentPitch = pitch;
+						} else {
+							handleMusician.currentInstrument = selectedInstrument;
+							noteOn(pitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
+							handleMusician.currentPitch = pitch;
+							handleMusician.notePlaying = true;
+						}
 					}
 				} else {
 					if (handleMusician.notePlaying) {
-						noteOff(handleMusician.currentPitch, handleMusician.currentVelocity);
+						noteOff(handleMusician.currentPitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
 						handleMusician.notePlaying = false;
 					}
 				}
@@ -112,16 +137,18 @@ public class MidiControl {
 		
 		
 	}
-	public static void noteOn(int pitch, int velocity) {
+	public static void noteOn(int pitch, int velocity, int instrument) {
 		try {
-			receiver.send(new ShortMessage(ShortMessage.NOTE_ON, 0, pitch, velocity), System.nanoTime());
+			System.out.println("Play note: "+instrument+", "+pitch+", "+velocity);
+			receivers[instrument].send(new ShortMessage(ShortMessage.NOTE_ON, 0, pitch, velocity), System.nanoTime());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-	public static void noteOff(int pitch, int velocity) {
+	public static void noteOff(int pitch, int velocity, int instrument) {
 		try {
-			receiver.send(new ShortMessage(ShortMessage.NOTE_OFF, 0, pitch, velocity), System.nanoTime());
+			System.out.println("Stop note: "+instrument+", "+pitch+", "+velocity);
+			receivers[instrument].send(new ShortMessage(ShortMessage.NOTE_OFF, 0, pitch, velocity), System.nanoTime());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -134,6 +161,7 @@ public class MidiControl {
 		public InputController.Handle pitchHandle, velocityHandle;
 		int currentPitch = -1;
 		int currentVelocity = 100;
+		int currentInstrument = 0;
 		boolean notePlaying = false;
 		public HandleMusician(InputController.Handle pitchHandle) {
 			this.pitchHandle = pitchHandle;

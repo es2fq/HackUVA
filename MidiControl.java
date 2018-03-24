@@ -55,7 +55,9 @@ public class MidiControl {
 		MidiDevice.Info[] midiInfo = MidiSystem.getMidiDeviceInfo();
 		System.out.println("How many midi devices would you like to connect?");
 	    input = in.nextInt();
-	    numInstruments = input;
+		numInstruments = input;
+		
+		frame.setVisible(true);
 	    
 		for (int a=0; a<numInstruments; a++) {
 			System.out.println("\n\nSelect instrument " + a);

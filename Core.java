@@ -73,9 +73,7 @@ class CoreListener extends Listener {
         if (MidiControl.numInstruments != 0 && MidiControl.receivers[MidiControl.numInstruments - 1] != null) {
 			InputController.update();
             MidiControl.update();
-            System.out.println("hi");
             MidiControl.graphPanel.update();
-            MidiControl.graphPanel.repaint();
         }
     }
 }

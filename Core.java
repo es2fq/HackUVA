@@ -24,11 +24,12 @@ class CoreListener extends Listener {
 
         HandList hands = frame.hands();
 
-        List<InputController.Handle> handleList = new ArrayList<InputController.Handle>();
+        ArrayList<InputController.Handle> handleList = new ArrayList<InputController.Handle>();
         for (Hand h : hands) {
             InputController.Handle newHandle;
             if (!handleMap.containsKey(h.id())) {
                 newHandle = new InputController.Handle();
+                MidiControl.addNewPitchHandle(newHandle);
                 handleMap.put(h.id(), newHandle);
             }
             newHandle = handleMap.get(h.id());
@@ -36,14 +37,24 @@ class CoreListener extends Listener {
             newHandle.y = h.palmPosition().getY();
             newHandle.z = h.palmPosition().getZ();
             newHandle.lastFrameId = frame.id();
+            //System.out.println("H "+newHandle.x+", "+newHandle.y+", "+newHandle.z);
         }
 
-        Iterator<InputController.Handle> handleIterator = handleList.iterator();
+        Iterator<Integer> handleIterator = handleMap.keySet().iterator();
         while (handleIterator.hasNext()) {
-            InputController.Handle handle = handleIterator.next();
-            if (handle.lastFrameId != frame.id()) {
-                handleIterator.remove();
+            Integer handleId = handleIterator.next();
+            if (handleMap.get(handleId).lastFrameId != frame.id()) {
+            	handleMap.get(handleId).isValid = false;
+                handleMap.remove(handleId);
             }
+        }
+        InputController.handles = new ArrayList<InputController.Handle>(handleMap.values());
+        //System.out.println(handleMap.size());
+        
+        
+        if (MidiControl.receiver != null) {
+			InputController.update();
+			MidiControl.update();
         }
     }
 }

@@ -2,6 +2,14 @@ import javax.sound.midi.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import com.leapmotion.leap.*;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.io.IOException;
+
 
 /*
  * 
@@ -12,13 +20,20 @@ import java.util.*;
  */
 
 public class MidiControl {
-	private static Receiver receiver;
+	public static Receiver receiver;
 	public static ArrayList<HandleMusician> handleMusicians = new ArrayList<HandleMusician>();
 	public static MidiMessage makeMidiMessage() {
 		return null;
 	}
 	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
 	{
+        CoreListener listener = new CoreListener();
+        Controller controller = new Controller();
+        
+        // Have the sample listener receive events from the controller
+        controller.addListener(listener);
+        
+        
 		while (true) {
 			//List Midi Devices
 			MidiDevice.Info[] midiInfo = MidiSystem.getMidiDeviceInfo();
@@ -48,11 +63,11 @@ public class MidiControl {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				InputController.update();
-				update();
 			}
 			
 		}
+        // Remove the sample listener when done
+        controller.removeListener(listener);
 	}
 	public static void update() {
 		Iterator<HandleMusician> it = handleMusicians.iterator();

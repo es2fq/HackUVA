@@ -8,6 +8,7 @@ public class InputController {
 	public static class Handle {
 		public double x, y, z;
 		public boolean isValid = true;
+		public long lastFrameId;
 		//todo: extend this for other leap motion bs
 		public Handle() {
 			

@@ -82,16 +82,26 @@ public class MidiControl {
 			} else {
 				int pitch = (int)(handleMusician.pitchHandle.y / 10);
 				pitch = pitch % 128;
-				if (handleMusician.notePlaying) {
-					if (pitch != handleMusician.currentPitch) {
-						noteOff(handleMusician.currentPitch, handleMusician.currentVelocity);
+				
+				
+				//play the note
+				if (handleMusician.pitchHandle.fingers != 0) {
+					if (handleMusician.notePlaying) {
+						if (pitch != handleMusician.currentPitch) {
+							noteOff(handleMusician.currentPitch, handleMusician.currentVelocity);
+							noteOn(pitch, handleMusician.currentVelocity);
+							handleMusician.currentPitch = pitch;
+						}
+					} else {
 						noteOn(pitch, handleMusician.currentVelocity);
 						handleMusician.currentPitch = pitch;
+						handleMusician.notePlaying = true;
 					}
 				} else {
-					noteOn(pitch, handleMusician.currentVelocity);
-					handleMusician.currentPitch = pitch;
-					handleMusician.notePlaying = true;
+					if (handleMusician.notePlaying) {
+						noteOff(handleMusician.currentPitch, handleMusician.currentVelocity);
+						handleMusician.notePlaying = false;
+					}
 				}
 			}
 			

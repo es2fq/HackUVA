@@ -36,8 +36,9 @@ class CoreListener extends Listener {
             newHandle.x = h.palmPosition().getX();
             newHandle.y = h.palmPosition().getY();
             newHandle.z = h.palmPosition().getZ();
+            newHandle.fingers = h.fingers().extended().count();
             newHandle.lastFrameId = frame.id();
-            //System.out.println("H "+newHandle.x+", "+newHandle.y+", "+newHandle.z);
+            System.out.println("H "+newHandle.x+", "+newHandle.y+", "+newHandle.z+", "+newHandle.fingers);
         }
 
         Iterator<Integer> handleIterator = handleMap.keySet().iterator();

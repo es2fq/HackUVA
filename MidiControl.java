@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.io.IOException;
-
+import java.awt.Dimension;
+import javax.swing.JFrame;
+import java.util.Arrays;
 
 /*
  * 
@@ -21,6 +23,7 @@ import java.io.IOException;
 
 public class MidiControl {
 	public static Receiver[] receivers = new Receiver[5];
+	public static GraphPanel graphPanel;
 	public static ArrayList<HandleMusician> handleMusicians = new ArrayList<HandleMusician>();
 	public static int numInstruments;
 	public static MidiMessage makeMidiMessage() {
@@ -29,8 +32,8 @@ public class MidiControl {
 	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
 	{
         CoreListener listener = new CoreListener();
-        Controller controller = new Controller();
-        
+		Controller controller = new Controller();
+
         // Have the sample listener receive events from the controller
         controller.addListener(listener);
 
@@ -38,6 +41,16 @@ public class MidiControl {
 		Scanner in = new Scanner(System.in);
 		int input;
 		
+		int maxDataPoints = 40;
+		int maxScore = 10;
+		
+		graphPanel = new GraphPanel();
+		graphPanel.setPreferredSize(new Dimension(800, 600));
+		JFrame frame = new JFrame("Visualizer");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().add(graphPanel);
+		frame.pack();
+		frame.setLocationRelativeTo(null);
 		
 		MidiDevice.Info[] midiInfo = MidiSystem.getMidiDeviceInfo();
 		System.out.println("How many midi devices would you like to connect?");
@@ -132,10 +145,7 @@ public class MidiControl {
 			
 		}
 		
-		
-		
-		
-		
+		graphPanel.update();
 	}
 	public static void noteOn(int pitch, int velocity, int instrument) {
 		try {
@@ -157,7 +167,7 @@ public class MidiControl {
 		//set a handle to act as a pitch handle for a musician
 		MidiControl.handleMusicians.add(new MidiControl.HandleMusician(handle));
 	}
-	private static class HandleMusician {
+	public static class HandleMusician {
 		public InputController.Handle pitchHandle, velocityHandle;
 		int currentPitch = -1;
 		int currentVelocity = 100;

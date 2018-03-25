@@ -48,6 +48,11 @@ class GraphPanel extends JPanel {
         this.yCoords = yCoords;
     }
     
+    
+    public static String toastString = "";
+    public static long toastStringEndTime = 0;//-1 means remain up indefinitely;
+    
+    
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -122,6 +127,24 @@ class GraphPanel extends JPanel {
         drawControlInputs(g2);
         drawHands(g2);
         
+        //draw toast
+        if (System.currentTimeMillis() < toastStringEndTime || toastStringEndTime == -1) {
+	        g2.setFont(new Font("Calibri", Font.PLAIN, 24)); 
+	        String label = toastString;
+	        label = label.substring(0, Math.min(5, label.length()))+"%";
+	        FontMetrics metrics = g2.getFontMetrics();
+	        int labelWidth = metrics.stringWidth(label);
+	        g2.drawString(label, 10, 50 - metrics.getHeight() / 2);
+        }
+        
+    }
+    public static void setToast(String string, long timeLength) {
+    	toastString = string;
+    	if (timeLength == 0) {
+    		toastStringEndTime = -1;
+    	} else {
+    		toastStringEndTime = System.currentTimeMillis() + timeLength;
+    	}
     }
     private void drawControlInputs(Graphics2D g2) {
     	for (int a = 0; a < MidiControl.controlInputs.size(); a++) {

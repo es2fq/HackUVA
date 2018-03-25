@@ -14,6 +14,33 @@ class CoreListener extends Listener {
         System.out.println("Connected");
         handleMap = new HashMap<Integer, InputController.Handle>();
     }
+    public void onDeviceChange(Controller arg0) {
+    	System.out.println("Device Change");
+    }
+    public void onDeviceFailure(Controller arg0) {
+    	System.out.println("onDeviceFailure");
+    }
+    public void onDisconnect(Controller arg0) {
+    	System.out.println("onDisconnect");
+    }
+    public void onExit(Controller arg0) {
+    	System.out.println("onExit");
+    }
+    public void onFocusGained(Controller arg0) {
+    	System.out.println("onFocusGained");
+    }
+    public void onFocusLost(Controller arg0) {
+    	System.out.println("onFocusLost");
+    }
+    public void onServiceConnect(Controller arg0) {
+    	System.out.println("onServiceConnect");
+    }
+    public void onServiceChange(Controller arg0) {
+    	System.out.println("onServiceChange");
+    }
+    public void onServiceDisconnect(Controller arg0) {
+    	System.out.println("onServiceDisconnect");
+    }
     
     public void onFrame(Controller controller) {
         Frame frame = controller.frame();

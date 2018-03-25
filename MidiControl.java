@@ -110,9 +110,9 @@ public class MidiControl {
 		frame.setLocationRelativeTo(null);
 		
 		MidiDevice.Info[] midiInfo = MidiSystem.getMidiDeviceInfo();
-		System.out.println("How many midi devices would you like to connect?");
+		System.out.println("How many midi devices would you like to connect? (up to 5)");
 	    input = in.nextInt();
-		numInstruments = input;
+		numInstruments = Math.min(5, input);
 	    
 		for (int a=0; a<numInstruments; a++) {
 			System.out.println("\n\nSelect instrument " + a);
@@ -145,7 +145,18 @@ public class MidiControl {
 			ci.xRange = controllerDimension;
 			ci.yRange = controllerDimension;
 			ci.instrument = 0;
-			ci.controlNum = 16 + a;
+			ci.controlNum = 16 + controlInputs.size();
+			controlInputs.add(ci);
+			controlChange(ci.controlNum, 0, ci.instrument);//reset the actual midi
+		}
+		for (int a=0; a<numColumns; a++) {
+			ControlInput ci = new ControlSlider();
+			ci.x = Core.worldXLeft + (controllerDimension * a);
+			ci.y = 180 + controllerDimension;
+			ci.xRange = controllerDimension;
+			ci.yRange = controllerDimension;
+			ci.instrument = 0;
+			ci.controlNum = 16 + controlInputs.size();
 			controlInputs.add(ci);
 			controlChange(ci.controlNum, 0, ci.instrument);//reset the actual midi
 		}
@@ -281,26 +292,21 @@ public class MidiControl {
 				}
 				if (handle.pinchedInControlZone != -1) {
 					handle.closestControlZone = handle.pinchedInControlZone;
+					pinchedItem = handle.pinchedInControlZone;
 				}
 				if (handle.pinchAmount > pinchThreshold && handle.pinchAmountPrevious <= pinchThreshold && pinchedItem != -1) {
 					if (handle.pinchedInControlZone == -1) {
 						controlInputs.get(pinchedItem).previousControlVal = -1;
+						handle.pinchedInControlZone = pinchedItem;
 					}
-					handle.pinchedInControlZone = pinchedItem;
-					
-				}
-				if (handle.pinchAmount < pinchThreshold) {
-					handle.pinchedInControlZone = -1;
-				}
-				if (handle.pinchedInControlZone!= -1) {
 				}
 			} else {
-				if (handle.pinchAmount < pinchThreshold) {
-					handle.pinchedInControlZone = -1;
-				}
 				if (handle.pinchedInControlZone == -1) {
 					handle.closestControlZone = -1;
 				}
+			}
+			if (handle.pinchAmount < pinchThreshold) {
+				handle.pinchedInControlZone = -1;
 			}
 			
 			
@@ -400,6 +406,17 @@ public class MidiControl {
 					changeAmount += (float)(2 * Math.PI);
 				}
 				value -= (float)(changeAmount / 3);
+			}
+			
+			previousControlVal = controlVal;
+		}
+	}
+	public static class ControlSlider extends ControlInput {
+		@Override
+		public void updateValue(Hand hand) {
+			float controlVal = hand.palmPosition().getY();
+			if (previousControlVal != -1) {
+				value += (controlVal - previousControlVal) / 250;
 			}
 			
 			previousControlVal = controlVal;

@@ -26,8 +26,19 @@ public class MidiControl {
 	public static GraphPanel graphPanel;
 	public static ArrayList<HandleMusician> handleMusicians = new ArrayList<HandleMusician>();
 	public static int numInstruments;
+	
+	private static boolean[] enabledPitches = new boolean[128];
 	public static MidiMessage makeMidiMessage() {
 		return null;
+	}
+	public static String[] scaleTypes = new String[] {"C Maj", "C# Maj", "D Maj", "D# Maj", "E Maj", "F Maj", "F# Maj", "G Maj", "G# Maj", "A Maj", "A# Maj", "B Maj",
+			"C Min", "C# Min", "D Min", "D# Min", "E Min", "F Min", "F# Min", "G Min", "G# Min", "A Min", "A# Min", "B Min"};
+	public static void makePitches(int s) {
+		boolean remove[] = new boolean[12];
+		for (int a=0; a<12; a++) {
+			remove[a] = false;
+		}
+		
 	}
 	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
 	{

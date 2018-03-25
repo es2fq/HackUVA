@@ -91,7 +91,7 @@ public class MidiControl {
 		s = new Sequence(javax.sound.midi.Sequence.PPQ,24);
 		t = s.createTrack();
 
-		endTime = System.currentTimeMillis() + 10000;
+		endTime = System.currentTimeMillis() + 30000;
 
         // Have the sample listener receive events from the controller
         controller.addListener(listener);
@@ -179,7 +179,10 @@ public class MidiControl {
 				Thread.sleep(25);
 				if (System.currentTimeMillis() > endTime) {
 					File f = new File("midifile.mid");
-					MidiSystem.write(s, 1, f);
+					if (!f.exists()) {
+						MidiSystem.write(s, 1, f);
+						System.out.println("done");
+					}
 				}
 //				if (MidiControl.numInstruments != 0 && MidiControl.receivers[MidiControl.numInstruments - 1] != null) {
 //					InputController.update();

@@ -200,7 +200,7 @@ public class MidiControl {
 			  public void actionPerformed(ActionEvent e) { 
 				  try {
 				  startRecording();
-				  } catch (Exception e) {
+				  } catch (Exception er) {
 					  
 				  }
 			  } 
@@ -211,7 +211,7 @@ public class MidiControl {
 			  public void actionPerformed(ActionEvent e) { 
 				  try {
 					  stopRecording();
-				  } catch (Exception e) {
+				  } catch (Exception er) {
 					  
 				  }
 			  } 

@@ -189,6 +189,7 @@ class GraphPanel extends JPanel {
                 g2.setColor(Color.BLACK);
                 g2.drawRect(getScreenX(x, y, z) - sliderWidth / 2, getScreenY(x, y, z) - sliderHeight / 2, sliderWidth, sliderHeight);
     		}
+            //g2.drawLine(getScreenX(ci.x, ci.y, ci.getCenterZ()), getScreenY(ci.x, ci.y, ci.getCenterZ()), getScreenX(ci.x, ci.y + ci.yRange, ci.getCenterZ()), getScreenY(ci.x, ci.y+ci.yRange, ci.getCenterZ()));
     	}
     }
     private void drawLine(Graphics2D g2, double x1, double y1, double z1, double x2, double y2, double z2) {
@@ -206,7 +207,7 @@ class GraphPanel extends JPanel {
             int ovalH = 16;
 
             g2.setColor(Color.BLACK);
-            g2.drawLine(getScreenX(x, y, z), getScreenY(x, y, z), getScreenX(x, y, z), getScreenY(x, 0, z));
+            g2.drawLine(getScreenX(x, y, z), getScreenY(x, y, z), getScreenX(x, 0, z), getScreenY(x, 0, z));
             for (Finger finger : handle.hand.fingers()) {
             	int boneNum = 0;
                 for(Bone.Type boneType : Bone.Type.values()) {
@@ -247,7 +248,7 @@ class GraphPanel extends JPanel {
         }
     }
     
-    Polygon p, p2, p3, p4;
+    Polygon p, p2, p3, p4, p5, p6, p7, p8;
     
     private void drawTable(Graphics2D g2) {
     	if (p == null) {
@@ -255,6 +256,10 @@ class GraphPanel extends JPanel {
 	        p2 = new Polygon();
 	        p3 = new Polygon();
 	        p4 = new Polygon();
+	        p5 = new Polygon();
+	        p6 = new Polygon();
+	        p7 = new Polygon();
+	        p8 = new Polygon();
 	        int xPoints[] = {Core.worldXLeft, Core.worldXLeft, Core.worldXRight, Core.worldXRight};
 	        int yPoints[] = {0, 0, 0, 0};
 	        int zPoints[] = {Core.worldZFar, Core.worldZNear, Core.worldZNear, Core.worldZFar};
@@ -273,10 +278,41 @@ class GraphPanel extends JPanel {
 	        p4.addPoint(getScreenX(xPoints[2], yPoints[2] - 30, zPoints[2]), getScreenY(xPoints[2], yPoints[2] - 30, zPoints[2]));
 	        p4.addPoint(getScreenX(xPoints[3], yPoints[3] - 30, zPoints[3]), getScreenY(xPoints[3], yPoints[3] - 30, zPoints[3]));
 	        p4.addPoint(getScreenX(xPoints[3], yPoints[3], zPoints[3]), getScreenY(xPoints[3], yPoints[3], zPoints[3]));
+	        xPoints = new int[] {Core.worldXLeft, Core.worldXLeft, Core.worldXRight, Core.worldXRight};
+	        yPoints = new int[] {900, 900, 900, 900};
+	        zPoints = new int[] {Core.worldZFar - 30, Core.worldZFar, Core.worldZFar, Core.worldZFar - 30};
+	
+	        for (int i = 0; i < xPoints.length; i++) {
+	            p5.addPoint(getScreenX(xPoints[i], yPoints[i], zPoints[i]), getScreenY(xPoints[i], yPoints[i], zPoints[i]));
+	            p6.addPoint(getScreenX(xPoints[i],  - 30, zPoints[i]), getScreenY(xPoints[i],  - 30, zPoints[i]));
+	        }
+	
+	        p7.addPoint(getScreenX(xPoints[1], yPoints[1], zPoints[1]), getScreenY(xPoints[1], yPoints[1], zPoints[1]));
+	        p7.addPoint(getScreenX(xPoints[1], - 30, zPoints[1]), getScreenY(xPoints[1], - 30, zPoints[1]));
+	        p7.addPoint(getScreenX(xPoints[2], - 30, zPoints[2]), getScreenY(xPoints[2], - 30, zPoints[2]));
+	        p7.addPoint(getScreenX(xPoints[2], yPoints[2], zPoints[2]), getScreenY(xPoints[2], yPoints[2], zPoints[2]));
+	
+	        p8.addPoint(getScreenX(xPoints[2], yPoints[2], zPoints[2]), getScreenY(xPoints[2], yPoints[2], zPoints[2]));
+	        p8.addPoint(getScreenX(xPoints[2], - 30, zPoints[2]), getScreenY(xPoints[2], - 30, zPoints[2]));
+	        p8.addPoint(getScreenX(xPoints[3], - 30, zPoints[3]), getScreenY(xPoints[3], - 30, zPoints[3]));
+	        p8.addPoint(getScreenX(xPoints[3], yPoints[3], zPoints[3]), getScreenY(xPoints[3], yPoints[3], zPoints[3]));
     	}
 
 //        g2.setColor(Color.GRAY);
 //        g2.fillPolygon(p2);
+        g2.setColor(Color.GRAY);
+        g2.fillPolygon(p5);
+        g2.setColor(Color.BLACK);
+        g2.draw(p5);
+        g2.setColor(Color.GRAY);
+        g2.fillPolygon(p7);
+        g2.setColor(Color.BLACK);
+        g2.draw(p7);
+        g2.setColor(Color.GRAY);
+        g2.fillPolygon(p8);
+        g2.setColor(Color.BLACK);
+        g2.draw(p8);
+        
         g2.setColor(Color.BLACK);
         g2.draw(p2);
         g2.setColor(Color.GRAY);

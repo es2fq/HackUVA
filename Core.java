@@ -98,7 +98,7 @@ class CoreListener extends Listener {
 }
 
 class Core {
-	public static int worldXLeft = -400, worldXRight = 400, worldZFar = -200, worldZNear = 200;
+	public static int worldXLeft = -400, worldXRight = 400, worldZFar = (int)MidiControl.maxZForControlZone, worldZNear = 200;
     public static void main(String[] args) {
         // Create a sample listener and controller
         CoreListener listener = new CoreListener();

@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import com.leapmotion.leap.*;
 import javax.swing.SwingUtilities;
+import java.awt.geom.Ellipse2D;
 
 class GraphPanel extends JPanel {
     JFrame frame;
@@ -165,6 +166,12 @@ class GraphPanel extends JPanel {
                 FontMetrics metrics = g2.getFontMetrics();
                 int labelWidth = metrics.stringWidth(label);
                 g2.drawString(label, getScreenX(x, y, z) - labelWidth / 2, getScreenY(x, y, z) - knobHeight / 2 - metrics.getHeight() + 3);
+                Stroke ovalOutline = new BasicStroke(3f * ci.drawScale);
+                g2.setStroke(ovalOutline);
+                g2.setColor(Color.BLACK);
+                g2.draw(new Ellipse2D.Double(getScreenX(x, y, z) - knobWidth / 2, getScreenY(x, y, z) - knobHeight / 2,
+                		knobWidth,
+                		knobHeight));
     		}
     	}
     }
@@ -288,7 +295,7 @@ class GraphPanel extends JPanel {
     }
     
     private double getYFactor() {
-    	return .5;
+    	return .7;
     }
 
     private int getScreenX(double x, double y, double z) {

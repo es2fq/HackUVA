@@ -399,7 +399,7 @@ public class MidiControl {
 				if (changeAmount < -Math.PI) {
 					changeAmount += (float)(2 * Math.PI);
 				}
-				value -= (float)(changeAmount / 5);
+				value -= (float)(changeAmount / 3);
 			}
 			
 			previousControlVal = controlVal;

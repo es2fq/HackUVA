@@ -121,6 +121,7 @@ public class VoiceLauncher {
                 }
                 else if(command.equalsIgnoreCase("hey midi drop the bass")) {
                 	MidiControl.playFinale();
+                    GraphPanel.setToast("Thanks for watching our presentation!", 25000);
                 }
                 else if(command.equalsIgnoreCase("hey midi bye bye")) {
                 	quit();

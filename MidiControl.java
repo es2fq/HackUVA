@@ -52,6 +52,7 @@ public class MidiControl {
 	public static boolean[] enabledPitches = new boolean[128];
 	public static int notePitches[] = new int[128];
 	public static int notePitchesMaxIndex = 127;
+	public static boolean disableMidiNotes = false;
 	public static MidiMessage makeMidiMessage() {
 		return null;
 	}
@@ -491,6 +492,9 @@ public class MidiControl {
 			makePitches(selectedScale);
 		}
 		public static void noteOn(int pitch, int velocity, int instrument) {
+			if (disableMidiNotes) {
+				return;
+			}
 			try {
 				ShortMessage sm = new ShortMessage(ShortMessage.NOTE_ON, 0, pitch, velocity);
 				receivers[instrument].send(sm, System.nanoTime());
@@ -513,6 +517,9 @@ public class MidiControl {
 			}
 		}
 		public static void controlChange(int knob, int value, int instrument) {
+			if (disableMidiNotes) {
+				return;
+			}
 			try {
 				ShortMessage sm = new ShortMessage(ShortMessage.CONTROL_CHANGE, 0, knob, value);
 				receivers[instrument].send(sm, System.nanoTime());
@@ -607,10 +614,8 @@ public class MidiControl {
 		
 		public static void playFinale() {
 			try {
-			String filename = "finale.mp3";
-			Media hit = new Media(new File(filename).toURI().toString());
-			MediaPlayer mediaPlayer = new MediaPlayer(hit);
-			mediaPlayer.play();
+				disableMidiNotes = true;
+		        new AePlayWave("finale.wav").start();
 			} catch (Exception e) {
 				
 			}

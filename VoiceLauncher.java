@@ -102,7 +102,7 @@ public class VoiceLauncher {
                     MidiControl.cb.repaint();
                     GraphPanel.setToast("Changing Key to G Major", 5000);
                 }
-                else if(command.equalsIgnoreCase("hey midi key change eff major")) {
+                else if(command.equalsIgnoreCase("hey midi eff major")) {
                     System.out.println("Changed to F Major!");
                     MidiControl.selectedScale = 5;
                     MidiControl.makePitches(MidiControl.selectedScale);

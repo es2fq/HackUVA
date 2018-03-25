@@ -90,7 +90,7 @@ public class MidiControl {
 		if (isRecording) {return false;}
 
 		
-		s = new Sequence(javax.sound.midi.Sequence.	SMPTE_30, midiTicksPerFrame);
+		s = new Sequence(javax.sound.midi.Sequence.PPQ, midiTicksPerFrame);
 		t = s.createTrack();
 
 		isRecording = true;
@@ -99,9 +99,10 @@ public class MidiControl {
 		sm.setMessage(b, 6);
 		MidiEvent me = new MidiEvent(sm,(long)0);
 		t.add(me);
-		
+
+//0xFF 0x51 0x03 0x07 0xA1 0x20
 		MetaMessage mt = new MetaMessage();
-		byte[] bt = {0x02, (byte)0x00, 0x00};
+		byte[] bt = {0x03, (byte)0x07, (byte)0xA1, (byte)(0x20)};
 		mt.setMessage(0x51 ,bt, 3);
 		me = new MidiEvent(mt,(long)0);
 		t.add(me);
@@ -147,7 +148,7 @@ public class MidiControl {
 		MetaMessage mt = new MetaMessage();
         byte[] bet = {}; // empty array
 		mt.setMessage(0x2F,bet,0);
-		MidiEvent me = new MidiEvent(mt, (long)((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame));
+		MidiEvent me = new MidiEvent(mt, (long)((double)(System.currentTimeMillis() - startTime)/1000*8*midiTicksPerFrame));
 
 		t.add(me);
 		File f = new File("midifile.mid");
@@ -436,7 +437,7 @@ public class MidiControl {
 				ShortMessage sm = new ShortMessage(ShortMessage.NOTE_ON, 0, pitch, velocity);
 				receivers[instrument].send(sm, System.nanoTime());
 				if (isRecording) {
-					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame)));
+					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*4*midiTicksPerFrame)));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -447,7 +448,7 @@ public class MidiControl {
 				ShortMessage sm = new ShortMessage(ShortMessage.NOTE_OFF, 0, pitch, velocity);
 				receivers[instrument].send(sm, System.nanoTime());
 				if (isRecording) {
-					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame)));
+					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*4*midiTicksPerFrame)));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -458,7 +459,7 @@ public class MidiControl {
 				ShortMessage sm = new ShortMessage(ShortMessage.CONTROL_CHANGE, 0, knob, value);
 				receivers[instrument].send(sm, System.nanoTime());
 				if (isRecording) {
-					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame)));
+					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*4*midiTicksPerFrame)));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

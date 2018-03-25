@@ -67,8 +67,6 @@ public class MidiControl {
 		System.out.println("How many midi devices would you like to connect?");
 	    input = in.nextInt();
 		numInstruments = input;
-		
-		frame.setVisible(true);
 	    
 		for (int a=0; a<numInstruments; a++) {
 			System.out.println("\n\nSelect instrument " + a);
@@ -92,10 +90,16 @@ public class MidiControl {
 		    }
 		}
 
+		frame.setVisible(true);
 
 		while (true) {
 			try {
 				Thread.sleep(25);
+				if (MidiControl.numInstruments != 0 && MidiControl.receivers[MidiControl.numInstruments - 1] != null) {
+					InputController.update();
+					MidiControl.update();
+					MidiControl.graphPanel.update();
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

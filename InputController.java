@@ -24,8 +24,7 @@ public class InputController {
 			Point mouseLoc = MouseInfo.getPointerInfo().getLocation();
 			mouseHandle.x = mouseLoc.getX();
 			mouseHandle.y = mouseLoc.getY();
-			
-			
+			mouseHandle.fingers = 1;
 			
 			if (!handles.contains(mouseHandle) && mouseHandle.isValid) {
 				handles.add(mouseHandle);

@@ -72,44 +72,59 @@ public class VoiceLauncher {
                 if(command.equalsIgnoreCase("hey midi start recording")) {
                 	MidiControl.startRecording();
                     System.out.println("Starting!");
+                    GraphPanel.setToast("Starting Recording", 5000);
                 }
                 else if(command.equalsIgnoreCase("hey midi stop recording")) {
                 	MidiControl.stopRecording();
                     System.out.println("Stopping!");
+                    GraphPanel.setToast("Stopping Recording", 5000);
                 }
                 else if(command.equalsIgnoreCase("hey midi upload file")) {
                     System.out.println("Uploading!");
                     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 	Date date = new Date();
                     uploadFile("midifile.mid", "My Midi File "+dateFormat.format(date), "I love HackUVA!");
+                    GraphPanel.setToast("Uploading Midi", 5000);
                 }
-                else if(command.equalsIgnoreCase("hey midi change key c major")) {
+                else if(command.equalsIgnoreCase("hey midi key change see major")) {
                     System.out.println("Changed to C Major!");
                     MidiControl.selectedScale = 0;
                     MidiControl.makePitches(MidiControl.selectedScale);
                     MidiControl.cb.setSelectedIndex(MidiControl.selectedScale);
                     MidiControl.cb.repaint();
+                    GraphPanel.setToast("Changing Key to C Major", 5000);
                 }
-                else if(command.equalsIgnoreCase("hey midi change key g major")) {
+                else if(command.equalsIgnoreCase("hey midi key change gee major")) {
                     System.out.println("Changed to G Major!");
                     MidiControl.selectedScale = 7;
                     MidiControl.makePitches(MidiControl.selectedScale);
                     MidiControl.cb.setSelectedIndex(MidiControl.selectedScale);
                     MidiControl.cb.repaint();
+                    GraphPanel.setToast("Changing Key to G Major", 5000);
                 }
-                else if(command.equalsIgnoreCase("hey midi change key d major")) {
-                    System.out.println("Changed to D Major!");
-                    MidiControl.selectedScale = 2;
+                else if(command.equalsIgnoreCase("hey midi key change eff major")) {
+                    System.out.println("Changed to F Major!");
+                    MidiControl.selectedScale = 5;
                     MidiControl.makePitches(MidiControl.selectedScale);
                     MidiControl.cb.setSelectedIndex(MidiControl.selectedScale);
                     MidiControl.cb.repaint();
+                    GraphPanel.setToast("Changing Key to F Major", 5000);
                 }
-                else if(command.equalsIgnoreCase("hey midi change key e minor")) {
+                else if(command.equalsIgnoreCase("hey midi key change ee minor")) {
                     System.out.println("Changed to E Minor!");
                     MidiControl.selectedScale = 16;
                     MidiControl.makePitches(MidiControl.selectedScale);
                     MidiControl.cb.setSelectedIndex(MidiControl.selectedScale);
                     MidiControl.cb.repaint();
+                    GraphPanel.setToast("Changing Key to E Minor", 5000);
+                }
+                else if(command.equalsIgnoreCase("hey midi bye bye")) {
+                	for (MidiControl.HandleMusician m : MidiControl.handleMusicians) {
+                		if (m.notePlaying) {
+    						MidiControl.noteOff(m.currentPitch, m.currentVelocity, m.currentInstrument);
+                		}
+                	}
+                	System.exit(0);
                 }
             }
         }

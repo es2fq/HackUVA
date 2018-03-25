@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import com.leapmotion.leap.*;
 import javax.swing.SwingUtilities;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 
 class GraphPanel extends JPanel {
     JFrame frame;
@@ -60,7 +61,7 @@ class GraphPanel extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
         // draw white background
-        g2.setColor(Color.WHITE);
+        g2.setColor(Color.BLACK);
         g2.fillRect(padding + labelPadding, padding, getWidth() - (2 * padding) - labelPadding, getHeight() - 2 * padding - labelPadding);
         g2.setColor(Color.BLACK);
 
@@ -126,15 +127,22 @@ class GraphPanel extends JPanel {
         }
         drawControlInputs(g2);
         drawHands(g2);
-        
         //draw toast
         if (System.currentTimeMillis() < toastStringEndTime || toastStringEndTime == -1) {
-	        g2.setFont(new Font("Calibri", Font.PLAIN, 24)); 
+
+	        g2.setFont(new Font("Calibri", Font.PLAIN, 32)); 
 	        String label = toastString;
-	        label = label.substring(0, Math.min(5, label.length()))+"%";
 	        FontMetrics metrics = g2.getFontMetrics();
+	        Rectangle2D stringBounds = metrics.getStringBounds(label, g2);
 	        int labelWidth = metrics.stringWidth(label);
-	        g2.drawString(label, 10, 50 - metrics.getHeight() / 2);
+
+	        g2.setColor(Color.GRAY);
+	        g2.fillRect(width / 2 - labelWidth / 2, 0, labelWidth, metrics.getHeight());
+            g2.setStroke(THIN_STROKE);
+	        g2.setColor(Color.BLACK);
+	        g2.drawRect(width / 2 - labelWidth / 2, 0, labelWidth, metrics.getHeight());
+            g2.setColor(Color.WHITE);
+	        g2.drawString(label, width / 2 - labelWidth / 2, 50 - metrics.getHeight() / 2);
         }
         
     }
@@ -267,7 +275,7 @@ class GraphPanel extends JPanel {
             String pointLabel = "(" + df.format(x) + ", " + df.format(y) + ")";
             FontMetrics metrics = g2.getFontMetrics();
             int labelWidth = metrics.stringWidth(pointLabel);
-            g2.drawString(pointLabel, getScreenX(x, y, z) - labelWidth / 2 - pointWidth, getScreenY(x, y, z));
+            //g2.drawString(pointLabel, getScreenX(x, y, z) - labelWidth / 2 - pointWidth, getScreenY(x, y, z));
         }
     }
     
@@ -302,7 +310,7 @@ class GraphPanel extends JPanel {
 	        p4.addPoint(getScreenX(xPoints[3], yPoints[3] - 30, zPoints[3]), getScreenY(xPoints[3], yPoints[3] - 30, zPoints[3]));
 	        p4.addPoint(getScreenX(xPoints[3], yPoints[3], zPoints[3]), getScreenY(xPoints[3], yPoints[3], zPoints[3]));
 	        xPoints = new int[] {Core.worldXLeft, Core.worldXLeft, Core.worldXRight, Core.worldXRight};
-	        yPoints = new int[] {900, 900, 900, 900};
+	        yPoints = new int[] {800, 800, 800, 800};
 	        zPoints = new int[] {Core.worldZFar - 30, Core.worldZFar, Core.worldZFar, Core.worldZFar - 30};
 	
 	        for (int i = 0; i < xPoints.length; i++) {

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.io.IOException;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.JPanel;
@@ -142,26 +143,17 @@ public class MidiControl {
 			return false;
 		}
 
-		//wait for no midi notes to be played
-		boolean notePlaying = false;
-		for (HandleMusician m : handleMusicians) {
-			if (m.notePlaying) {
-				notePlaying = true;
-				break;
-			}
-		}
-		if (!notePlaying) {
-			MetaMessage mt = new MetaMessage();
-	        byte[] bet = {}; // empty array
-			mt.setMessage(0x2F,bet,0);
-			MidiEvent me = new MidiEvent(mt, (long)((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame));
+	//wait for no midi notes to be played
+		MetaMessage mt = new MetaMessage();
+        byte[] bet = {}; // empty array
+		mt.setMessage(0x2F,bet,0);
+		MidiEvent me = new MidiEvent(mt, (long)((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame));
 
-			t.add(me);
-			File f = new File("midifile.mid");
-			isRecording = false;
-			MidiSystem.write(s, 1, f);
-			System.out.println("done");
-		}
+		t.add(me);
+		File f = new File("midifile.mid");
+		isRecording = false;
+		MidiSystem.write(s, 1, f);
+		System.out.println("done");
 		return true;
 	}
 	public static Controller controller;
@@ -200,6 +192,7 @@ public class MidiControl {
 		JFrame frame = new JFrame("Visualizer");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().add(container);
+		frame.getContentPane().setBackground(Color.BLACK);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);

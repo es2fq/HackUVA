@@ -86,7 +86,7 @@ public class VoiceLauncher {
                     uploadFile("midifile.mid", "My Midi File "+dateFormat.format(date), "I love HackUVA!");
                     GraphPanel.setToast("Uploading Midi", 5000);
                 }
-                else if(command.equalsIgnoreCase("hey midi key change see major")) {
+                else if(command.equalsIgnoreCase("hey midi see major")) {
                     System.out.println("Changed to C Major!");
                     MidiControl.selectedScale = 0;
                     MidiControl.makePitches(MidiControl.selectedScale);
@@ -94,7 +94,7 @@ public class VoiceLauncher {
                     MidiControl.cb.repaint();
                     GraphPanel.setToast("Changing Key to C Major", 5000);
                 }
-                else if(command.equalsIgnoreCase("hey midi key change gee major")) {
+                else if(command.equalsIgnoreCase("hey midi gee major")) {
                     System.out.println("Changed to G Major!");
                     MidiControl.selectedScale = 7;
                     MidiControl.makePitches(MidiControl.selectedScale);
@@ -110,7 +110,7 @@ public class VoiceLauncher {
                     MidiControl.cb.repaint();
                     GraphPanel.setToast("Changing Key to F Major", 5000);
                 }
-                else if(command.equalsIgnoreCase("hey midi key change ee minor")) {
+                else if(command.equalsIgnoreCase("hey midi ee minor")) {
                     System.out.println("Changed to E Minor!");
                     MidiControl.selectedScale = 16;
                     MidiControl.makePitches(MidiControl.selectedScale);

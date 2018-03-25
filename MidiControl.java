@@ -27,21 +27,52 @@ public class MidiControl {
 	public static ArrayList<HandleMusician> handleMusicians = new ArrayList<HandleMusician>();
 	public static int numInstruments;
 	
-	private static boolean[] enabledPitches = new boolean[128];
+	public static boolean[] enabledPitches = new boolean[128];
+	public static int notePitches[] = new int[128];
+	public static int notePitchesMaxIndex = 127;
 	public static MidiMessage makeMidiMessage() {
 		return null;
 	}
 	public static String[] scaleTypes = new String[] {"C Maj", "C# Maj", "D Maj", "D# Maj", "E Maj", "F Maj", "F# Maj", "G Maj", "G# Maj", "A Maj", "A# Maj", "B Maj",
 			"C Min", "C# Min", "D Min", "D# Min", "E Min", "F Min", "F# Min", "G Min", "G# Min", "A Min", "A# Min", "B Min"};
 	public static void makePitches(int s) {
-		boolean remove[] = new boolean[12];
-		for (int a=0; a<12; a++) {
-			remove[a] = false;
+		boolean notes[];
+		if (s >= 24 || s < 0) {
+			notes = new boolean[] {true, true, true, true, true, true, true, true, true, true, true, true};
+		} else if (s >= 12) {
+			//minor scales
+			notes = new boolean[] {true, false, true, true, false, true, false, true, false, true, false, true};
+		} else {
+			//major scales
+			notes = new boolean[] {true, false, true, false, true, true, false, true, false, true, false, true};
 		}
 		
+		int scaleIndex = 0;
+		int a = 60 + (s % 12);
+		while (a > 0) {
+			a -= 12;
+		}
+		int notesIndex = 0;
+		for (; a<128; a++) {
+			if (a > 0) {
+				enabledPitches[a] = notes[scaleIndex];
+				if (notes[scaleIndex]) {
+					notePitches[notesIndex] = a;
+					notePitchesMaxIndex = notesIndex;
+					notesIndex ++;
+				}
+			}
+			scaleIndex ++;
+			if (scaleIndex >= 12) {
+				scaleIndex = 0;
+			}
+		}
 	}
 	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
 	{
+		makePitches(0);//TODO: remove this test code. currently set the scale to c major
+		
+		
         CoreListener listener = new CoreListener();
 		Controller controller = new Controller();
 
@@ -118,8 +149,14 @@ public class MidiControl {
 					noteOff(handleMusician.currentPitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
 				}
 			} else {
-				int pitch = (int)(handleMusician.pitchHandle.y / 10);
-				pitch = pitch % 128;
+				int pitchIndex = (int)(handleMusician.pitchHandle.y / 10);
+				if (pitchIndex < 0) {
+					pitchIndex = 0;
+				}
+				if (pitchIndex > notePitchesMaxIndex) {
+					pitchIndex = notePitchesMaxIndex;
+				}
+				int pitch = notePitches[pitchIndex];
 				
 				int selectedInstrument = handleMusician.pitchHandle.fingers - 1;
 				if (selectedInstrument > numInstruments - 1) {

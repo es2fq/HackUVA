@@ -28,7 +28,7 @@ class GraphPanel extends JPanel {
     private int pointWidth = 10;
     private int numberYDivisions = 10;
     private List<Double> scores;
-    
+
     public GraphPanel() {
         this.scores = new ArrayList<Double>();
     }

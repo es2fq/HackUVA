@@ -9,8 +9,13 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.io.IOException;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GridLayout;
+import javax.swing.JPanel;
 import javax.swing.JFrame;
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
 import java.util.Arrays;
 
 /*
@@ -26,6 +31,9 @@ public class MidiControl {
 	public static GraphPanel graphPanel;
 	public static ArrayList<HandleMusician> handleMusicians = new ArrayList<HandleMusician>();
 	public static int numInstruments;
+	public static int selectedScale = 0;
+
+	public static JComboBox<String> cb;
 	
 	private static boolean[] enabledPitches = new boolean[128];
 	public static MidiMessage makeMidiMessage() {
@@ -57,9 +65,17 @@ public class MidiControl {
 		
 		graphPanel = new GraphPanel();
 		graphPanel.setPreferredSize(new Dimension(800, 600));
+
+		cb = new JComboBox<String>(MidiControl.scaleTypes);
+		cb.setVisible(true);
+		
+		JPanel container = new JPanel();
+		container.add(graphPanel);
+		container.add(cb);
+
 		JFrame frame = new JFrame("Visualizer");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().add(graphPanel);
+		frame.getContentPane().add(container);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		
@@ -164,6 +180,7 @@ public class MidiControl {
 		}
 		
 		graphPanel.update();
+		selectedScale = cb.getSelectedIndex();
 	}
 	public static void noteOn(int pitch, int velocity, int instrument) {
 		try {

@@ -15,10 +15,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.JPanel;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import java.util.Arrays;
+import java.awt.event.*;
 import java.lang.Thread;
 
 /*
@@ -88,6 +90,7 @@ public class MidiControl {
 	}
 	public static boolean startRecording() throws InvalidMidiDataException {
 		if (isRecording) {return false;}
+        GraphPanel.setToast("Starting Recording", 5000);
 
 		
 		s = new Sequence(javax.sound.midi.Sequence.PPQ, midiTicksPerFrame);
@@ -143,6 +146,7 @@ public class MidiControl {
 		if (!isRecording) {
 			return false;
 		}
+        GraphPanel.setToast("Stopping Recording", 5000);
 
 	//wait for no midi notes to be played
 		MetaMessage mt = new MetaMessage();
@@ -189,6 +193,21 @@ public class MidiControl {
 		JPanel container = new JPanel();
 		container.add(graphPanel);
 		container.add(cb);
+
+		JButton startRecordButton = new JButton("Start Record");
+		container.add(startRecordButton);
+		startRecordButton.addActionListener(new ActionListener() { 
+			  public void actionPerformed(ActionEvent e) { 
+			    startRecord();
+			  } 
+			} );
+		JButton stopRecordButton = new JButton("Stop Record");
+		container.add(stopRecordButton);
+		stopRecordButton.addActionListener(new ActionListener() { 
+			  public void actionPerformed(ActionEvent e) { 
+			    stopRecord();
+			  } 
+			} );
 		
 		JFrame frame = new JFrame("Visualizer");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

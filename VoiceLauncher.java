@@ -72,12 +72,10 @@ public class VoiceLauncher {
                 if(command.equalsIgnoreCase("hey midi start recording")) {
                 	MidiControl.startRecording();
                     System.out.println("Starting!");
-                    GraphPanel.setToast("Starting Recording", 5000);
                 }
                 else if(command.equalsIgnoreCase("hey midi stop recording")) {
                 	MidiControl.stopRecording();
                     System.out.println("Stopping!");
-                    GraphPanel.setToast("Stopping Recording", 5000);
                 }
                 else if(command.equalsIgnoreCase("hey midi upload file")) {
                     System.out.println("Uploading!");

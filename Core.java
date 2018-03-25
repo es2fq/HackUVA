@@ -36,17 +36,49 @@ class CoreListener extends Listener {
             newHandle.x = h.palmPosition().getX();
             newHandle.y = h.palmPosition().getY();
             newHandle.z = h.palmPosition().getZ();
-            newHandle.fingers = h.fingers().extended().count();
+            int newFingers = h.fingers().extended().count();
+            if (newHandle.lastFingerChangeTime + 300 < System.currentTimeMillis()) {
+            	//the finger change time occured a while ago, so safe to say it is stable
+                if (newHandle.fingers != newFingers) {
+//                	if (newFingers > 0) {
+//                		newHandle.fingersChangeTo = newFingers;
+//                		newHandle.lastFingerChangeTime = System.currentTimeMillis();
+//                	} else {
+//                        newHandle.fingers = newFingers;
+//                    }
+//                	if (newHandle.fingersChangeTo != -1) {
+//                		newHandle.fingersChangeTo = -1;
+//                        newHandle.fingers = newFingers;
+//                	}
+                    newHandle.fingers = newFingers;
+                    newHandle.lastFingerChangeTime = System.currentTimeMillis();
+                }
+            } else {
+            	if (newFingers == 0) {
+            		newHandle.fingers = newFingers;
+            		newHandle.lastFingerChangeTime = 0;
+            	}
+            }
+//            newHandle.fingers = newFingers;	
+            	
             newHandle.lastFrameId = frame.id();
             //System.out.println("H "+newHandle.x+", "+newHandle.y+", "+newHandle.z+", "+newHandle.fingers);
         }
 
-        Iterator<Integer> handleIterator = handleMap.keySet().iterator();
+//        Iterator<Integer> handleIterator = handleMap.keySet().iterator();
+//        while (handleIterator.hasNext()) {
+//            Integer handleId = handleIterator.next();
+//            if (handleMap.get(handleId).lastFrameId != frame.id()) {
+//            	handleMap.get(handleId).isValid = false;
+//                handleMap.remove(handleId);
+//            }
+//        }
+        Iterator<InputController.Handle> handleIterator = InputController.handles.iterator();
         while (handleIterator.hasNext()) {
-            Integer handleId = handleIterator.next();
-            if (handleMap.get(handleId).lastFrameId != frame.id()) {
-            	handleMap.get(handleId).isValid = false;
-                handleMap.remove(handleId);
+        	InputController.Handle handle = handleIterator.next();
+            if (handle.lastFrameId != frame.id()) {
+            	handle.isValid = false;
+                handleMap.values().remove(handle);
             }
         }
         InputController.handles = new ArrayList<InputController.Handle>(handleMap.values());

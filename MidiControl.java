@@ -145,6 +145,7 @@ public class MidiControl {
 					if (handleMusician.notePlaying) {
 						noteOff(handleMusician.currentPitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
 						handleMusician.notePlaying = false;
+						handleMusician.currentPitch = pitch;
 					}
 				}
 			}

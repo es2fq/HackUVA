@@ -10,9 +10,9 @@ public class InputController {
 	static boolean madeMouseusician = false;
 	public static class Handle {
 		public double x, y, z;
-		public int fingers = 0;
+		public int fingers = 0, fingersChangeTo = -1;
 		public boolean isValid = true;
-		public long lastFrameId;
+		public long lastFrameId, lastFingerChangeTime;
 		//todo: extend this for other leap motion bs
 		public Handle() {
 			

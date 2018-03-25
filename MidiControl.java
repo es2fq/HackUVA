@@ -85,13 +85,9 @@ public class MidiControl {
 			}
 		}
 	}
-	public static boolean isRecording = false;
-	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
-	{
-		SpeechDetector sd = new SpeechDetector();
-		CoreListener listener = new CoreListener();
-		Controller controller = new Controller();
-		VoiceLauncher voiceLauncher = new VoiceLauncher();
+	public static boolean startRecording() {
+		if (isRecording) {return false;}
+
 		
 		s = new Sequence(javax.sound.midi.Sequence.	SMPTE_30, midiTicksPerFrame);
 		t = s.createTrack();
@@ -99,6 +95,7 @@ public class MidiControl {
         // Have the sample listener receive events from the controller
         controller.addListener(listener);
 
+		isRecording = true;
 		byte[] b = {(byte)0xF0, 0x7E, 0x7F, 0x09, 0x01, (byte)0xF7};
 		SysexMessage sm = new SysexMessage();
 		sm.setMessage(b, 6);
@@ -137,6 +134,46 @@ public class MidiControl {
 		mm.setMessage(0xC0, 0x00, 0x00);
 		me = new MidiEvent(mm,(long)0);
 		t.add(me);
+
+		isRecording = true;
+
+		startTime = System.currentTimeMillis();
+		return true;
+	}
+	public static boolean stopRecording() {
+		if (!isRecording) {
+			return false;
+		}
+
+		//wait for no midi notes to be played
+		boolean notePlaying = false;
+		for (HandleMusician m : handleMusicians) {
+			if (m.notePlaying) {
+				notePlaying = true;
+				break;
+			}
+		}
+		if (!notePlaying) {
+			mt = new MetaMessage();
+	        byte[] bet = {}; // empty array
+			mt.setMessage(0x2F,bet,0);
+			me = new MidiEvent(mt, (long)((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame));
+
+			t.add(me);
+			File f = new File("midifile.mid");
+			isRecording = false;
+			MidiSystem.write(s, 1, f);
+			System.out.println("done");
+		}
+		return true;
+	}
+	public static boolean isRecording = false;
+	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
+	{
+		SpeechDetector sd = new SpeechDetector();
+		CoreListener listener = new CoreListener();
+		Controller controller = new Controller();
+		VoiceLauncher voiceLauncher = new VoiceLauncher();
 		
 		
 		
@@ -167,7 +204,6 @@ public class MidiControl {
 		System.out.println("How many midi devices would you like to connect? (up to 5)");
 		input = in.nextInt();
 		numInstruments = Math.min(5, input);
-		isRecording = true;
 		for (int a=0; a<numInstruments; a++) {
 			System.out.println("\n\nSelect instrument " + a);
 			int i = 0;
@@ -216,7 +252,6 @@ public class MidiControl {
 		}
 		
 		frame.setVisible(true);
-		startTime = System.currentTimeMillis();
 		
 		Runnable r = new Runnable() {
 			public void run() {
@@ -234,30 +269,6 @@ public class MidiControl {
 		while (true) {
 			try {
 				Thread.sleep(25);
-				if (System.currentTimeMillis() > startTime + 15000) {
-					//wait for no midi notes to be played
-					boolean notePlaying = false;
-					for (HandleMusician m : handleMusicians) {
-						if (m.notePlaying) {
-							notePlaying = true;
-							break;
-						}
-					}
-					if (!notePlaying) {
-						mt = new MetaMessage();
-				        byte[] bet = {}; // empty array
-						mt.setMessage(0x2F,bet,0);
-						me = new MidiEvent(mt, (long)((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame));
-	
-						t.add(me);
-						File f = new File("midifile.mid");
-						isRecording = false;
-						if (!f.exists()) {
-							MidiSystem.write(s, 1, f);
-							System.out.println("done");
-						}
-					}
-				}
 				//				if (MidiControl.numInstruments != 0 && MidiControl.receivers[MidiControl.numInstruments - 1] != null) {
 					//					InputController.update();
 					//					MidiControl.update();

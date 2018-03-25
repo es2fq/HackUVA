@@ -83,6 +83,34 @@ public class VoiceLauncher {
                 	Date date = new Date();
                     uploadFile("midifile.mid", "My Midi File "+dateFormat.format(date), "I love HackUVA!");
                 }
+                else if(command.equalsIgnoreCase("hey midi change key c major")) {
+                    System.out.println("Changed to C Major!");
+                    MidiControl.selectedScale = 0;
+                    MidiControl.makePitches(MidiControl.selectedScale);
+                    MidiControl.cb.setSelectedIndex(MidiControl.selectedScale);
+                    MidiControl.cb.repaint();
+                }
+                else if(command.equalsIgnoreCase("hey midi change key g major")) {
+                    System.out.println("Changed to G Major!");
+                    MidiControl.selectedScale = 7;
+                    MidiControl.makePitches(MidiControl.selectedScale);
+                    MidiControl.cb.setSelectedIndex(MidiControl.selectedScale);
+                    MidiControl.cb.repaint();
+                }
+                else if(command.equalsIgnoreCase("hey midi change key d major")) {
+                    System.out.println("Changed to D Major!");
+                    MidiControl.selectedScale = 2;
+                    MidiControl.makePitches(MidiControl.selectedScale);
+                    MidiControl.cb.setSelectedIndex(MidiControl.selectedScale);
+                    MidiControl.cb.repaint();
+                }
+                else if(command.equalsIgnoreCase("hey midi change key e minor")) {
+                    System.out.println("Changed to E Minor!");
+                    MidiControl.selectedScale = 16;
+                    MidiControl.makePitches(MidiControl.selectedScale);
+                    MidiControl.cb.setSelectedIndex(MidiControl.selectedScale);
+                    MidiControl.cb.repaint();
+                }
             }
         }
         catch (Exception e) {

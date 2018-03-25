@@ -34,6 +34,11 @@ public class MidiControl {
 	public static int numInstruments;
 	public static int selectedScale = 0;
 
+	public static Sequence s;
+	public static Track t;
+
+	private static long endTime;
+
 	public static JComboBox<String> cb;
 	
 	public static boolean[] enabledPitches = new boolean[128];
@@ -82,6 +87,11 @@ public class MidiControl {
 		SpeechDetector sd = new SpeechDetector();
         CoreListener listener = new CoreListener();
 		Controller controller = new Controller();
+
+		s = new Sequence(javax.sound.midi.Sequence.PPQ,24);
+		t = s.createTrack();
+
+		endTime = System.currentTimeMillis() + 10000;
 
         // Have the sample listener receive events from the controller
         controller.addListener(listener);
@@ -167,6 +177,10 @@ public class MidiControl {
 		while (true) {
 			try {
 				Thread.sleep(25);
+				if (System.currentTimeMillis() > endTime) {
+					File f = new File("midifile.mid");
+					MidiSystem.write(s, 1, f);
+				}
 //				if (MidiControl.numInstruments != 0 && MidiControl.receivers[MidiControl.numInstruments - 1] != null) {
 //					InputController.update();
 //					MidiControl.update();
@@ -322,7 +336,9 @@ public class MidiControl {
 	}
 	public static void noteOn(int pitch, int velocity, int instrument) {
 		try {
-			receivers[instrument].send(new ShortMessage(ShortMessage.NOTE_ON, 0, pitch, velocity), System.nanoTime());
+			ShortMessage sm = new ShortMessage(ShortMessage.NOTE_ON, 0, pitch, velocity);
+			receivers[instrument].send(sm, System.nanoTime());
+			t.add(new MidiEvent(sm, (long) 0));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

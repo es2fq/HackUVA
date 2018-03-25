@@ -4,7 +4,11 @@
   "description": "Web frontend for HackUVA",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": "9.8.0"
   },
   "author": "Diana Chang, JSON Hu, Erik Song, Eric Xie",
   "license": "ISC",

@@ -1,0 +1,24 @@
+<!-- Page Content -->
+<div class="container">
+
+    <!-- Page Heading -->
+    <h1 class="my-4">User Uploads
+      <small></small>
+    </h1>
+    {{#each items}}
+    <div class="row">
+      <div class="col-md-7">
+        <a href="#">
+          <img class="img-fluid rounded mb-3 mb-md-0" src="http://placehold.it/700x150" alt="">
+        </a>
+      </div>
+      <div class="col-md-5">
+        <h3>{{this.name}}</h3>
+        <a class="btn btn-success" onClick=MIDIjs.play("/midi/{{this.filename}}")>Play</a>
+        <p>{{this.desc}}</p>
+      </div>
+    </div>
+    <hr>
+    {{/each}}
+
+    <hr>

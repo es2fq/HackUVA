@@ -51,14 +51,12 @@ class GraphPanel extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
-        // double xScale = ((double) getWidth() - (2 * padding) - labelPadding) / (yCoords.size() - 1);
-        double yScale = ((double) getHeight() - 2 * padding - labelPadding) / (getMaxScore() - getMinScore());
-
         // draw white background
         g2.setColor(Color.WHITE);
         g2.fillRect(padding + labelPadding, padding, getWidth() - (2 * padding) - labelPadding, getHeight() - 2 * padding - labelPadding);
         g2.setColor(Color.BLACK);
-        
+
+        drawTable(g2);
         // create hatch marks and grid lines for y axis.
         // for (int i = 0; i < numberYDivisions + 1; i++) {
         //     int x0 = getWidth() / 2 + padding;
@@ -118,7 +116,6 @@ class GraphPanel extends JPanel {
                 g2.drawLine(x0, y0, x1, y1);
             }
         }
-        
 
         Stroke oldStroke = g2.getStroke();
         g2.setColor(lineColor);
@@ -187,47 +184,61 @@ class GraphPanel extends JPanel {
         // g2.drawLine(padding + labelPadding + 50, getHeight() - padding * 2 - labelPadding - 27, padding + labelPadding + 50 + 75, getHeight() - padding * 2 - labelPadding - 27 - 50);
 
         // side of box
-        Polygon p = new Polygon();
-        int xPoints[] = {padding + labelPadding + 50, padding + labelPadding + 50, getWidth() - padding - 100, getWidth() - padding - 100};
-        int yPoints[] = {getHeight() - padding * 2 - labelPadding - 7, getHeight() - padding * 2 - labelPadding - 27, getHeight() - padding * 2 - labelPadding - 27, getHeight() - padding * 2 - labelPadding - 7};
-        for (int i = 0; i < xPoints.length; i++) {
-            p.addPoint(xPoints[i], yPoints[i]);
-        }
-        g2.setColor(Color.BLACK);
-        g2.draw(p);
-        g2.setColor(Color.GRAY);
-        g2.fillPolygon(p);
+        // Polygon p = new Polygon();
+        // int xPoints[] = {padding + labelPadding + 50, padding + labelPadding + 50, getWidth() - padding - 100, getWidth() - padding - 100};
+        // int yPoints[] = {getHeight() - padding * 2 - labelPadding - 7, getHeight() - padding * 2 - labelPadding - 27, getHeight() - padding * 2 - labelPadding - 27, getHeight() - padding * 2 - labelPadding - 7};
+        // for (int i = 0; i < xPoints.length; i++) {
+        //     p.addPoint(xPoints[i], yPoints[i]);
+        // }
+        // g2.setColor(Color.BLACK);
+        // g2.draw(p);
+        // g2.setColor(Color.GRAY);
+        // g2.fillPolygon(p);
+        
+    }
+    
+    private void drawTable(Graphics2D g2) {
 
-        // top of box
+        Polygon p = new Polygon();
         Polygon p2 = new Polygon();
-        int xPoints2[] = {padding + labelPadding + 50, padding + labelPadding + 50 + 75, getWidth() - padding - 25, getWidth() - padding - 100};
-        int yPoints2[] = {getHeight() - padding * 2 - labelPadding - 27, getHeight() - padding * 2 - labelPadding - 27 - 50, getHeight() - padding * 2 - labelPadding - 27 - 50, getHeight() - padding * 2 - labelPadding - 27};
-        for (int i = 0; i < xPoints2.length; i++) {
-            p2.addPoint(xPoints2[i], yPoints2[i]);
+        Polygon p3 = new Polygon();
+        Polygon p4 = new Polygon();
+        int xPoints[] = {-400, -400, 400, 400};
+        int yPoints[] = {0, 0, 0, 0};
+        int zPoints[] = {-200, 200, 200, -200};
+
+        for (int i = 0; i < xPoints.length; i++) {
+            p.addPoint(getScreenX(xPoints[i], yPoints[i], zPoints[i]), getScreenY(xPoints[i], yPoints[i], zPoints[i]));
+            p2.addPoint(getScreenX(xPoints[i], yPoints[i] - 30, zPoints[i]), getScreenY(xPoints[i], yPoints[i] - 30, zPoints[i]));
         }
+
+        p3.addPoint(getScreenX(xPoints[1], yPoints[1], zPoints[1]), getScreenY(xPoints[1], yPoints[1], zPoints[1]));
+        p3.addPoint(getScreenX(xPoints[1], yPoints[1] - 30, zPoints[1]), getScreenY(xPoints[1], yPoints[1] - 30, zPoints[1]));
+        p3.addPoint(getScreenX(xPoints[2], yPoints[2] - 30, zPoints[2]), getScreenY(xPoints[2], yPoints[2] - 30, zPoints[2]));
+        p3.addPoint(getScreenX(xPoints[2], yPoints[2], zPoints[2]), getScreenY(xPoints[2], yPoints[2], zPoints[2]));
+
+        p4.addPoint(getScreenX(xPoints[2], yPoints[2], zPoints[2]), getScreenY(xPoints[2], yPoints[2], zPoints[2]));
+        p4.addPoint(getScreenX(xPoints[2], yPoints[2] - 30, zPoints[2]), getScreenY(xPoints[2], yPoints[2] - 30, zPoints[2]));
+        p4.addPoint(getScreenX(xPoints[3], yPoints[3] - 30, zPoints[3]), getScreenY(xPoints[3], yPoints[3] - 30, zPoints[3]));
+        p4.addPoint(getScreenX(xPoints[3], yPoints[3], zPoints[3]), getScreenY(xPoints[3], yPoints[3], zPoints[3]));
+
+        g2.setColor(Color.GRAY);
+        g2.fillPolygon(p2);
         g2.setColor(Color.BLACK);
         g2.draw(p2);
         g2.setColor(Color.GRAY);
-        g2.fillPolygon(p2);
-
-        // right of box
-        Polygon p3 = new Polygon();
-        int xPoints3[] = {getWidth() - padding - 25, getWidth() - padding - 25, getWidth() - padding - 100, getWidth() - padding - 100};
-        int yPoints3[] = {getHeight() - padding * 2 - labelPadding - 27 - 50, getHeight() - padding * 2 - labelPadding - 7 - 50, getHeight() - padding * 2 - labelPadding - 7, getHeight() - padding * 2 - labelPadding - 27};
-        for (int i = 0; i < xPoints3.length; i++) {
-            p3.addPoint(xPoints3[i], yPoints3[i]);
-        }
+        g2.fillPolygon(p);
+        g2.setColor(Color.BLACK);
+        g2.draw(p);
+        g2.setColor(Color.GRAY);
+        g2.fillPolygon(p3);
         g2.setColor(Color.BLACK);
         g2.draw(p3);
         g2.setColor(Color.GRAY);
-        g2.fillPolygon(p3);
-
+        g2.fillPolygon(p4);
         g2.setColor(Color.BLACK);
-        for (int i = 0; i < xPoints.length - 1; i++) {
-            g2.drawLine(xPoints[i], yPoints[i], xPoints[i + 1], yPoints[i + 1]);
-            g2.drawLine(xPoints2[i], yPoints2[i], xPoints2[i + 1], yPoints2[i + 1]);
-            g2.drawLine(xPoints3[i], yPoints3[i], xPoints3[i + 1], yPoints3[i + 1]);
-        }
+        g2.draw(p4);
+
         // for (int i = 0; i < graphPoints.size() - 1; i++) {
         //     int x1 = graphPoints.get(i).x;
         //     int y1 = graphPoints.get(i).y;
@@ -246,11 +257,11 @@ class GraphPanel extends JPanel {
     }
 
     private int getScreenX(double x, double y, double z) {
-        return (int) (x - 0.5 * z)  + 430;
+        return (int) (.9 * x - 0.25 * z)  + 430;
     }
 
     private int getScreenY(double x, double y, double z) {
-        return (int) (200 - y + 0.7 * z);
+        return (int) (200 - .5 * y + 0.35 * z);
     }
 
     private int getScreenZ(double x, double y, double z) {
@@ -279,12 +290,6 @@ class GraphPanel extends JPanel {
         return 170;
         // return maxScore;
     }
-
-    public void setData(List<Double> yCoords, List<Double> xCoords, List<Double> zCoords) {
-        this.yCoords = yCoords;
-        this.xCoords = xCoords;
-        this.zCoords = zCoords;
-	}
     
     public void update() {
     	invalidate();

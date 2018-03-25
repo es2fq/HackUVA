@@ -20,8 +20,8 @@ import javax.swing.SwingUtilities;
 class GraphPanel extends JPanel {
     JFrame frame;
     
-    private int width = 800;
-    private int heigth = 400;
+    public int width = 900;
+    public int height = 600;
     private int padding = 25;
     private int labelPadding = 25;
     private Color lineColor = new Color(44, 102, 230, 180);
@@ -257,11 +257,11 @@ class GraphPanel extends JPanel {
     }
 
     private int getScreenX(double x, double y, double z) {
-        return (int) (.9 * x - 0.25 * z)  + 430;
+        return (int) (.9 * x - 0.25 * z)  + width / 2;
     }
 
     private int getScreenY(double x, double y, double z) {
-        return (int) (200 - .5 * y + 0.35 * z);
+        return (int) (height * 3 / 4 - .5 * y + 0.35 * z);
     }
 
     private int getScreenZ(double x, double y, double z) {
@@ -270,7 +270,7 @@ class GraphPanel extends JPanel {
     
     @Override
     public Dimension getPreferredSize() {
-        return new Dimension(width, heigth);
+        return new Dimension(width, height);
     }
     
     private double getMinScore() {

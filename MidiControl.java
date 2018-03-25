@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import com.leapmotion.leap.*;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import java.util.Arrays;
+import java.lang.Thread;
 
 /*
 * 
@@ -89,6 +91,7 @@ public class MidiControl {
 		SpeechDetector sd = new SpeechDetector();
 		CoreListener listener = new CoreListener();
 		Controller controller = new Controller();
+		VoiceLauncher voiceLauncher = new VoiceLauncher();
 		
 		s = new Sequence(javax.sound.midi.Sequence.	SMPTE_30, midiTicksPerFrame);
 		t = s.createTrack();
@@ -212,9 +215,21 @@ public class MidiControl {
 			controlChange(ci.controlNum, 0, ci.instrument);//reset the actual midi
 		}
 		
-		
 		frame.setVisible(true);
 		startTime = System.currentTimeMillis();
+		
+		Runnable r = new Runnable() {
+			public void run() {
+				try {
+					voiceLauncher.startListening();
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		Thread thread = new Thread(r);
+		thread.start();
 		
 		while (true) {
 			try {

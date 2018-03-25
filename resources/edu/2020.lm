@@ -1,0 +1,52 @@
+Language model created by QuickLM on Sun Mar 25 04:16:58 EDT 2018
+Copyright (c) 1996-2010 Carnegie Mellon University and Alexander I. Rudnicky
+
+The model is in standard ARPA format, designed by Doug Paul while he was at MITRE.
+
+The code that was used to produce this language model is available in Open Source.
+Please visit http://www.speech.cs.cmu.edu/tools/ for more information
+
+The (fixed) discount mass is 0.5. The backoffs are computed using the ratio method.
+This model based on a corpus of 3 sentences and 9 words
+
+\data\
+ngram 1=9
+ngram 2=10
+ngram 3=10
+
+\1-grams:
+-1.0792 </s> -0.3010
+-1.0792 <s> -0.2632
+-1.5563 FILE -0.2632
+-1.0792 HEY -0.2632
+-1.0792 MIDI -0.2632
+-1.2553 RECORDING -0.2632
+-1.5563 START -0.2762
+-1.5563 STOP -0.2762
+-1.5563 UPLOAD -0.2888
+
+\2-grams:
+-0.3010 <s> HEY 0.0000
+-0.3010 FILE </s> -0.3010
+-0.3010 HEY MIDI 0.0000
+-0.7782 MIDI START 0.0000
+-0.7782 MIDI STOP 0.0000
+-0.7782 MIDI UPLOAD 0.0000
+-0.3010 RECORDING </s> -0.3010
+-0.3010 START RECORDING 0.0000
+-0.3010 STOP RECORDING 0.0000
+-0.3010 UPLOAD FILE 0.0000
+
+\3-grams:
+-0.3010 <s> HEY MIDI
+-0.7782 HEY MIDI START
+-0.7782 HEY MIDI STOP
+-0.7782 HEY MIDI UPLOAD
+-0.3010 MIDI START RECORDING
+-0.3010 MIDI STOP RECORDING
+-0.3010 MIDI UPLOAD FILE
+-0.3010 START RECORDING </s>
+-0.3010 STOP RECORDING </s>
+-0.3010 UPLOAD FILE </s>
+
+\end\

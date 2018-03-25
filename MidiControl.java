@@ -30,6 +30,7 @@ public class MidiControl {
 	public static Receiver[] receivers = new Receiver[5];
 	public static GraphPanel graphPanel;
 	public static ArrayList<HandleMusician> handleMusicians = new ArrayList<HandleMusician>();
+	public static ArrayList<ControlInput> controlInputs = new ArrayList<ControlInput>();
 	public static int numInstruments;
 	public static int selectedScale = 0;
 
@@ -78,8 +79,6 @@ public class MidiControl {
 	}
 	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
 	{
-		
-		
 		
         CoreListener listener = new CoreListener();
 		Controller controller = new Controller();
@@ -133,6 +132,24 @@ public class MidiControl {
 			selectedDevice.open();
 			receivers[a] = selectedDevice.getReceiver();
 		}
+		
+
+		int numColumns = 4;
+		int worldWidth = Core.worldXRight - Core.worldXLeft;
+		int controllerDimension = worldWidth / (numColumns + 1);
+		//initialize knobs
+		for (int a=0; a<numColumns; a++) {
+			ControlInput ci = new ControlKnob();
+			ci.x = Core.worldXLeft + (controllerDimension * a);
+			ci.y = 180;
+			ci.xRange = controllerDimension;
+			ci.yRange = controllerDimension;
+			ci.instrument = 0;
+			ci.controlNum = 16 + a;
+			controlInputs.add(ci);
+			controlChange(ci.controlNum, 0, ci.instrument);//reset the actual midi
+		}
+		
 
 		frame.setVisible(true);
 
@@ -157,10 +174,6 @@ public class MidiControl {
 	public static double minZForInstruments = -50;
 	public static double maxZForControlZone = -100;
 	public static void update() {
-		if (InputController.handles.size() > 0) {
-			controlChange(16, (int)(InputController.handles.get(0).y / 10), 0);
-		}
-		
 		
 		Iterator<HandleMusician> it = handleMusicians.iterator();
 		while (it.hasNext()) {
@@ -253,22 +266,41 @@ public class MidiControl {
 			if (handle.musician.notePlaying) {
 				continue;//skip handles that are controlling an instrument
 			}
-			if (handle.z < minZForInstruments) {
+			double pinchThreshold = .5;
+			if (handle.z < maxZForControlZone) {
 				//we are in the control zone
+				int pinchedItem = -1;
+				handle.closestControlZone = -1;
+				for (int a = 0; a < controlInputs.size(); a++) {
+					ControlInput ci = controlInputs.get(a);
+					if (handle.x >= ci.x && handle.y >= ci.y && handle.x < ci.x + ci.xRange && handle.y < ci.y + ci.yRange) {
+						pinchedItem = a;
+						handle.closestControlZone = pinchedItem;
+						break;
+					}
+				}
+				if (handle.pinchedInControlZone != -1) {
+					handle.closestControlZone = handle.pinchedInControlZone;
+				}
+				if (handle.pinchAmount > pinchThreshold && handle.pinchAmountPrevious <= pinchThreshold && pinchedItem != -1) {
+					if (handle.pinchedInControlZone == -1) {
+						controlInputs.get(pinchedItem).previousControlVal = -1;
+					}
+					handle.pinchedInControlZone = pinchedItem;
+					
+				}
+				if (handle.pinchAmount < pinchThreshold) {
+					handle.pinchedInControlZone = -1;
+				}
+				if (handle.pinchedInControlZone!= -1) {
+				}
+			} else if (handle.pinchAmount < pinchThreshold) {
+				handle.pinchedInControlZone = -1;
 			}
-			if (handle.z > maxZForControlZone) {
-				//we are in the control zone
-				if (handle.pinchAmount > .5 && handle.pinchAmountPrevious <= .5) {
-					handle.pinchedInControlZone = true;
-				}
-				if (handle.pinchAmount < .5) {
-					handle.pinchedInControlZone = false;
-				}
-				if (handle.pinchedInControlZone) {
-					System.out.println("Handle pinched: "+handle.pinchAmount);
-				}
-			} else {
-				handle.pinchedInControlZone = false;
+			
+			
+			if (handle.pinchedInControlZone != -1) {
+				controlInputs.get(handle.pinchedInControlZone).updateAndSendMidi(handle.hand);
 			}
 		}
 		
@@ -312,6 +344,53 @@ public class MidiControl {
 		boolean notePlaying = false, instrumentSet = false;
 		public HandleMusician(InputController.Handle pitchHandle) {
 			this.pitchHandle = pitchHandle;
+		}
+	}
+	public static class ControlInput {
+		public float value;
+		public float previousControlVal = -1;
+		public int controlNum;
+		public int instrument;
+		public int x, y, xRange, yRange;
+		public void updateValue(Hand hand) {
+			
+		}
+		public void updateAndSendMidi(Hand hand) {
+			updateValue(hand);
+			controlChange(controlNum, (int)(value * 127), instrument);
+		}
+		public int getCenterX() {
+			return x + xRange / 2;
+		}
+		public int getCenterY() {
+			return y + yRange / 2;
+		}
+		public int getCenterZ() {
+			return (int)maxZForControlZone - 20;
+		}
+	}
+	public static class ControlKnob extends ControlInput {
+		@Override
+		public void updateValue(Hand hand) {
+			float controlVal = hand.palmNormal().roll();
+			if (previousControlVal != -1) {
+				float changeAmount = controlVal - previousControlVal;
+				if (changeAmount > Math.PI) {
+					changeAmount -= (float)(2 * Math.PI);
+				}
+				if (changeAmount < -Math.PI) {
+					changeAmount += (float)(2 * Math.PI);
+				}
+				value -= (float)(changeAmount / 5);
+			}
+			if (value > 1) {
+				value = 1;
+			}
+			if (value < 0) {
+				value = 0;
+			}
+			
+			previousControlVal = controlVal;
 		}
 	}
 }

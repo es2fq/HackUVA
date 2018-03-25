@@ -12,8 +12,8 @@ public class InputController {
 	public static class Handle {
 		public double x, y, z;
 		public Hand hand;
-		public int fingers = 0, fingersChangeTo = -1;
-		public boolean isValid = true, pinchedInControlZone = false;
+		public int fingers = 0, fingersChangeTo = -1, pinchedInControlZone = -1 /*the knob or slider index of what is pinched*/, closestControlZone = -1;
+		public boolean isValid = true;
 		public long lastFrameId, lastFingerChangeTime;
 		public float pinchAmount = 0, pinchAmountPrevious = 0;
 		public MidiControl.HandleMusician musician;

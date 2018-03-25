@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.io.IOException;
 
 class CoreListener extends Listener {
+	
     Map<Integer, InputController.Handle> handleMap;
     
     public void onConnect(Controller controller) {
@@ -70,6 +71,7 @@ class CoreListener extends Listener {
 }
 
 class Core {
+	public static int worldXLeft = -400, worldXRight = 400, worldZFar = -200, worldZNear = 200;
     public static void main(String[] args) {
         // Create a sample listener and controller
         CoreListener listener = new CoreListener();

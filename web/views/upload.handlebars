@@ -1,0 +1,23 @@
+<!-- Page Content -->
+<div class="container">
+
+    <!-- Page Heading -->
+    <h1 class="my-4">User Uploads
+      <small></small>
+    </h1>
+    <div class="row">
+      <form action="/upload" method="post" encType="multipart/form-data">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id='name' name="name"/>
+          </div>
+          <div class="form-group">
+            <textarea placeholder="Description" name="desc" rows="5" cols="30"></textarea>
+          </div>
+          <div class="form-group">
+            <input type="file" id="midifile" name="midifile"/>
+          </div>
+          <input class="btn btn-primary" type="submit" value="Upload"/>
+        </div>
+      </form>
+    </div>

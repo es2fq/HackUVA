@@ -78,7 +78,7 @@ public class MidiControl {
 	}
 	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
 	{
-		makePitches(0);//TODO: remove this test code. currently set the scale to c major
+		
 		
 		
         CoreListener listener = new CoreListener();
@@ -155,6 +155,11 @@ public class MidiControl {
         // Remove the sample listener when done
 	}
 	public static void update() {
+		if (InputController.handles.size() > 0) {
+			controlChange(16, (int)(InputController.handles.get(0).y / 10), 0);
+		}
+		
+		
 		Iterator<HandleMusician> it = handleMusicians.iterator();
 		while (it.hasNext()) {
 			HandleMusician handleMusician = it.next();
@@ -165,7 +170,7 @@ public class MidiControl {
 					noteOff(handleMusician.currentPitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
 				}
 			} else {
-				int pitchIndex = (int)(handleMusician.pitchHandle.y / 10);
+				int pitchIndex = (int)(handleMusician.pitchHandle.y / 16);
 				if (pitchIndex < 0) {
 					pitchIndex = 0;
 				}
@@ -178,6 +183,26 @@ public class MidiControl {
 				if (selectedInstrument > numInstruments - 1) {
 					selectedInstrument = numInstruments - 1;
 				}
+				int setInstrument = -1;
+				if (selectedInstrument >= 0) {
+					//check to see that the selected instrument has stabilized
+					if (handleMusician.pitchHandle.lastFingerChangeTime + 150 < System.currentTimeMillis() || handleMusician.instrumentSet) {
+						selectedInstrument = handleMusician.currentInstrument; // keep the instrument from changing if its been stable
+						handleMusician.instrumentSet = true;
+					} else {
+						if (handleMusician.notePlaying) {
+							noteOff(handleMusician.currentPitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
+							handleMusician.notePlaying = false;
+						}
+						handleMusician.instrumentSet = false;
+						handleMusician.currentInstrument = selectedInstrument;
+						selectedInstrument = -1;
+						System.out.println(handleMusician.pitchHandle.fingers + ", " + handleMusician.pitchHandle.lastFingerChangeTime +", "+System.currentTimeMillis());
+					}
+				} else {
+					handleMusician.instrumentSet = false; 
+				}
+				
 				//play the note
 				if (selectedInstrument >= 0) {
 					if (selectedInstrument == handleMusician.currentInstrument) { // if you have teh same instrument
@@ -210,14 +235,15 @@ public class MidiControl {
 						noteOff(handleMusician.currentPitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
 						handleMusician.notePlaying = false;
 						handleMusician.currentPitch = pitch;
+						handleMusician.currentInstrument = setInstrument;
 					}
 				}
 			}
-			
 		}
 		
 		graphPanel.update();
 		selectedScale = cb.getSelectedIndex();
+		makePitches(selectedScale);
 	}
 	public static void noteOn(int pitch, int velocity, int instrument) {
 		try {
@@ -235,6 +261,14 @@ public class MidiControl {
 			e.printStackTrace();
 		}
 	}
+	public static void controlChange(int knob, int value, int instrument) {
+		try {
+			System.out.println("Control change: "+instrument+", "+knob+", "+value);
+			receivers[instrument].send(new ShortMessage(ShortMessage.CONTROL_CHANGE, 0, knob, value), System.nanoTime());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	public static void addNewPitchHandle(InputController.Handle handle) {
 		//set a handle to act as a pitch handle for a musician
 		MidiControl.handleMusicians.add(new MidiControl.HandleMusician(handle));
@@ -244,7 +278,7 @@ public class MidiControl {
 		int currentPitch = -1;
 		int currentVelocity = 100;
 		int currentInstrument = 0;
-		boolean notePlaying = false;
+		boolean notePlaying = false, instrumentSet = false;
 		public HandleMusician(InputController.Handle pitchHandle) {
 			this.pitchHandle = pitchHandle;
 		}

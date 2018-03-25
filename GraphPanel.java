@@ -46,7 +46,6 @@ class GraphPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
@@ -242,11 +241,21 @@ class GraphPanel extends JPanel {
         return 170;
         // return maxScore;
     }
+<<<<<<< HEAD
 
     public void setData(List<Double> yCoords, List<Double> xCoords, List<Double> zCoords) {
         this.yCoords = yCoords;
         this.xCoords = xCoords;
         this.zCoords = zCoords;
+=======
+    
+    public void setScores(List<Double> scores) {
+        this.scores = scores;
+
+        this.scores.add(0, 0.0);
+        this.scores.add(0.0);
+
+>>>>>>> d665c14947fc4d295f147b169b775b05ef707c0b
         invalidate();
         this.repaint();
     }

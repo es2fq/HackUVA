@@ -15,11 +15,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import javax.swing.JPanel;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import java.util.Arrays;
+import java.awt.event.*;
 import java.lang.Thread;
+import javafx.scene.media.*;
 
 /*
 * 
@@ -88,6 +91,7 @@ public class MidiControl {
 	}
 	public static boolean startRecording() throws InvalidMidiDataException {
 		if (isRecording) {return false;}
+        GraphPanel.setToast("Starting Recording", 5000);
 
 		
 		s = new Sequence(javax.sound.midi.Sequence.PPQ, midiTicksPerFrame);
@@ -143,6 +147,7 @@ public class MidiControl {
 		if (!isRecording) {
 			return false;
 		}
+        GraphPanel.setToast("Stopping Recording", 5000);
 
 	//wait for no midi notes to be played
 		MetaMessage mt = new MetaMessage();
@@ -188,7 +193,59 @@ public class MidiControl {
 		
 		JPanel container = new JPanel();
 		container.add(graphPanel);
-		container.add(cb);
+
+		JButton startRecordButton = new JButton("Start Record");
+		startRecordButton.addActionListener(new ActionListener() { 
+			  public void actionPerformed(ActionEvent e) { 
+				  try {
+				  startRecording();
+				  } catch (Exception er) {
+					  
+				  }
+			  } 
+			} );
+		JButton stopRecordButton = new JButton("Stop Record");
+		stopRecordButton.addActionListener(new ActionListener() { 
+			  public void actionPerformed(ActionEvent e) { 
+				  try {
+					  stopRecording();
+				  } catch (Exception er) {
+					  
+				  }
+			  } 
+			} );
+		JButton uploadButton = new JButton("Upload");
+		uploadButton.addActionListener(new ActionListener() { 
+			  public void actionPerformed(ActionEvent e) { 
+				  try {
+					  VoiceLauncher.upload();
+				  } catch (Exception er) {
+					  
+				  }
+			  } 
+			} );
+		JButton quitButton = new JButton("Quit");
+		quitButton.addActionListener(new ActionListener() { 
+			  public void actionPerformed(ActionEvent e) { 
+				  try {
+					  VoiceLauncher.quit();
+				  } catch (Exception er) {
+					  
+				  }
+			  } 
+			} );
+
+		
+		JPanel uiContainer = new JPanel();
+		GridLayout uiButtons = new GridLayout(10, 1);
+		uiContainer.setLayout(uiButtons);
+		uiContainer.add(cb);
+		uiContainer.add(startRecordButton);
+		uiContainer.add(stopRecordButton);
+		uiContainer.add(uploadButton);
+		uiContainer.add(quitButton);
+		container.add(uiContainer);
+
 		
 		JFrame frame = new JFrame("Visualizer");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -544,6 +601,17 @@ public class MidiControl {
 				}
 				
 				previousControlVal = controlVal;
+			}
+		}
+		
+		public static void playFinale() {
+			try {
+			String filename = "finale.mp3";
+			Media hit = new Media(new File(filename).toURI().toString());
+			MediaPlayer mediaPlayer = new MediaPlayer(hit);
+			mediaPlayer.play();
+			} catch (Exception e) {
+				
 			}
 		}
 	}

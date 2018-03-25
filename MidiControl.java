@@ -166,6 +166,8 @@ public class MidiControl {
 	}
 	public static Controller controller;
 	public static boolean isRecording = false;
+	
+	public static boolean initialized = false;
 	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
 	{
 		SpeechDetector sd = new SpeechDetector();
@@ -200,28 +202,55 @@ public class MidiControl {
 		frame.getContentPane().add(container);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
+		frame.setVisible(true);
 		
+
+		
+		Runnable r = new Runnable() {
+			public void run() {
+				try {
+					voiceLauncher.startListening();
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
 		MidiDevice.Info[] midiInfo = MidiSystem.getMidiDeviceInfo();
-		System.out.println("How many midi devices would you like to connect? (up to 5)");
-		input = in.nextInt();
-		numInstruments = Math.min(5, input);
-		for (int a=0; a<numInstruments; a++) {
-			System.out.println("\n\nSelect instrument " + a);
-			int i = 0;
-			for (MidiDevice.Info info : midiInfo) {
-				System.out.println(i + ": " +info.getName());
-				i+=1;
+		
+		
+		Thread thread = new Thread(r);
+		thread.start();
+		
+		if (midiInfo.length > 10) {//jasons computer
+			numInstruments = 5;
+			for (int a=0; a<5; a++) {
+				MidiDevice selectedDevice = MidiSystem.getMidiDevice(midiInfo[8 + a]);
+				selectedDevice.open();
+				receivers[a] = selectedDevice.getReceiver();
 			}
+		} else {
+			System.out.println("How many midi devices would you like to connect? (up to 5)");
 			input = in.nextInt();
-			if(input == -1)
-			{
-				numInstruments = a;
-				break;
+			numInstruments = Math.min(5, input);
+			for (int a=0; a<numInstruments; a++) {
+				System.out.println("\n\nSelect instrument " + a);
+				int i = 0;
+				for (MidiDevice.Info info : midiInfo) {
+					System.out.println(i + ": " +info.getName());
+					i+=1;
+				}
+				input = in.nextInt();
+				if(input == -1)
+				{
+					numInstruments = a;
+					break;
+				}
+				//Get Device and Open it
+				MidiDevice selectedDevice = MidiSystem.getMidiDevice(midiInfo[input]);
+				selectedDevice.open();
+				receivers[a] = selectedDevice.getReceiver();
 			}
-			//Get Device and Open it
-			MidiDevice selectedDevice = MidiSystem.getMidiDevice(midiInfo[input]);
-			selectedDevice.open();
-			receivers[a] = selectedDevice.getReceiver();
 		}
 		
 		
@@ -252,20 +281,6 @@ public class MidiControl {
 			controlChange(ci.controlNum, 0, ci.instrument);//reset the actual midi
 		}
 		
-		frame.setVisible(true);
-		
-		Runnable r = new Runnable() {
-			public void run() {
-				try {
-					voiceLauncher.startListening();
-				}
-				catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		};
-		Thread thread = new Thread(r);
-		thread.start();
 		
 		while (true) {
 			try {

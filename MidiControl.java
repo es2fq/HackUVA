@@ -155,6 +155,10 @@ public class MidiControl {
         // Remove the sample listener when done
 	}
 	public static void update() {
+		if (InputController.handles.size() > 0) {
+			controlChange(16, (int)(InputController.handles.get(0).y / 10), 0);
+		}
+		
 		
 		Iterator<HandleMusician> it = handleMusicians.iterator();
 		while (it.hasNext()) {
@@ -235,7 +239,6 @@ public class MidiControl {
 					}
 				}
 			}
-			
 		}
 		
 		graphPanel.update();
@@ -254,6 +257,14 @@ public class MidiControl {
 		try {
 			System.out.println("Stop note: "+instrument+", "+pitch+", "+velocity);
 			receivers[instrument].send(new ShortMessage(ShortMessage.NOTE_OFF, 0, pitch, velocity), System.nanoTime());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public static void controlChange(int knob, int value, int instrument) {
+		try {
+			System.out.println("Control change: "+instrument+", "+knob+", "+value);
+			receivers[instrument].send(new ShortMessage(ShortMessage.CONTROL_CHANGE, 0, knob, value), System.nanoTime());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -3,6 +3,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import com.leapmotion.leap.*;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import java.util.Arrays;
+import java.lang.Thread;
 
 /*
 * 
@@ -87,6 +89,7 @@ public class MidiControl {
 		SpeechDetector sd = new SpeechDetector();
 		CoreListener listener = new CoreListener();
 		Controller controller = new Controller();
+		VoiceLauncher voiceLauncher = new VoiceLauncher();
 		
 		s = new Sequence(javax.sound.midi.Sequence.PPQ,24);
 		t = s.createTrack();
@@ -209,8 +212,20 @@ public class MidiControl {
 			controlChange(ci.controlNum, 0, ci.instrument);//reset the actual midi
 		}
 		
-		
 		frame.setVisible(true);
+		
+		Runnable r = new Runnable() {
+			public void run() {
+				try {
+					voiceLauncher.startListening();
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		Thread thread = new Thread(r);
+		thread.start();
 		
 		while (true) {
 			try {
@@ -218,10 +233,10 @@ public class MidiControl {
 				if (System.currentTimeMillis() > endTime) {
 					//****  set end of track (meta event) 19 ticks later  ****
 					mt = new MetaMessage();
-					byte[] bet = {}; // empty array
+					byte[] bet = {}; // empty array	
 					mt.setMessage(0x2F,bet,0);
 					me = new MidiEvent(mt, (long)140);
-
+					
 					t.add(me);
 					File f = new File("midifile.mid");
 					MidiSystem.write(s, 1, f);

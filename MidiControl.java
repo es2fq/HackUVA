@@ -36,6 +36,7 @@ public class MidiControl {
 	
 	public static Sequence s;
 	public static Track t;
+	public static int midiTicksPerFrame = 30;
 	
 	private static long startTime;
 	
@@ -82,7 +83,6 @@ public class MidiControl {
 			}
 		}
 	}
-	public static int PPQ = 24;
 	public static boolean isRecording = false;
 	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
 	{
@@ -90,7 +90,7 @@ public class MidiControl {
 		CoreListener listener = new CoreListener();
 		Controller controller = new Controller();
 		
-		s = new Sequence(javax.sound.midi.Sequence.PPQ, PPQ);
+		s = new Sequence(javax.sound.midi.Sequence.	SMPTE_30, midiTicksPerFrame);
 		t = s.createTrack();
 
         // Have the sample listener receive events from the controller
@@ -115,6 +115,7 @@ public class MidiControl {
 		mt.setMessage(0x03 ,TrackName.getBytes(), TrackName.length());
 		me = new MidiEvent(mt,(long)0);
 		t.add(me);
+
 		
 		//****  set omni on  ****
 		ShortMessage mm = new ShortMessage();
@@ -219,18 +220,27 @@ public class MidiControl {
 			try {
 				Thread.sleep(25);
 				if (System.currentTimeMillis() > startTime + 15000) {
-					//****  set end of track (meta event) 19 ticks later  ****
-					mt = new MetaMessage();
-					byte[] bet = {}; // empty array
-					mt.setMessage(0x2F,bet,0);
-					me = new MidiEvent(mt, (long)((double)(System.currentTimeMillis() - startTime)/1000*PPQ*4));
-
-					t.add(me);
-					File f = new File("midifile.mid");
-					isRecording = false;
-					if (!f.exists()) {
-						MidiSystem.write(s, 1, f);
-						System.out.println("done");
+					//wait for no midi notes to be played
+					boolean notePlaying = false;
+					for (HandleMusician m : handleMusicians) {
+						if (m.notePlaying) {
+							notePlaying = true;
+							break;
+						}
+					}
+					if (!notePlaying) {
+						mt = new MetaMessage();
+				        byte[] bet = {}; // empty array
+						mt.setMessage(0x2F,bet,0);
+						me = new MidiEvent(mt, (long)((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame));
+	
+						t.add(me);
+						File f = new File("midifile.mid");
+						isRecording = false;
+						if (!f.exists()) {
+							MidiSystem.write(s, 1, f);
+							System.out.println("done");
+						}
 					}
 				}
 				//				if (MidiControl.numInstruments != 0 && MidiControl.receivers[MidiControl.numInstruments - 1] != null) {
@@ -391,7 +401,7 @@ public class MidiControl {
 				ShortMessage sm = new ShortMessage(ShortMessage.NOTE_ON, 0, pitch, velocity);
 				receivers[instrument].send(sm, System.nanoTime());
 				if (isRecording) {
-					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*PPQ)));
+					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame)));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -402,7 +412,7 @@ public class MidiControl {
 				ShortMessage sm = new ShortMessage(ShortMessage.NOTE_OFF, 0, pitch, velocity);
 				receivers[instrument].send(sm, System.nanoTime());
 				if (isRecording) {
-					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*PPQ)));
+					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame)));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -413,7 +423,7 @@ public class MidiControl {
 				ShortMessage sm = new ShortMessage(ShortMessage.CONTROL_CHANGE, 0, knob, value);
 				receivers[instrument].send(sm, System.nanoTime());
 				if (isRecording) {
-					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*PPQ)));
+					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame)));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();

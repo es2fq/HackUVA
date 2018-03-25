@@ -134,9 +134,9 @@ public class MidiControl {
 		}
 		
 
-		int numColumns = 4;
+		int numColumns = 5;
 		int worldWidth = Core.worldXRight - Core.worldXLeft;
-		int controllerDimension = worldWidth / (numColumns + 1);
+		int controllerDimension = worldWidth / numColumns;
 		//initialize knobs
 		for (int a=0; a<numColumns; a++) {
 			ControlInput ci = new ControlKnob();
@@ -294,8 +294,13 @@ public class MidiControl {
 				}
 				if (handle.pinchedInControlZone!= -1) {
 				}
-			} else if (handle.pinchAmount < pinchThreshold) {
-				handle.pinchedInControlZone = -1;
+			} else {
+				if (handle.pinchAmount < pinchThreshold) {
+					handle.pinchedInControlZone = -1;
+				}
+				if (handle.pinchedInControlZone == -1) {
+					handle.closestControlZone = -1;
+				}
 			}
 			
 			
@@ -352,12 +357,13 @@ public class MidiControl {
 		public int controlNum;
 		public int instrument;
 		public int x, y, xRange, yRange;
+		public float drawScale = 1;
 		public void updateValue(Hand hand) {
 			
 		}
 		public void updateAndSendMidi(Hand hand) {
 			updateValue(hand);
-			controlChange(controlNum, (int)(value * 127), instrument);
+			controlChange(controlNum, (int)(Math.min(Math.max(value, 0), 1) * 127), instrument);
 		}
 		public int getCenterX() {
 			return x + xRange / 2;
@@ -366,7 +372,19 @@ public class MidiControl {
 			return y + yRange / 2;
 		}
 		public int getCenterZ() {
-			return (int)maxZForControlZone - 20;
+			return (int)maxZForControlZone;
+		}
+		public void clampValue() {
+			value = clampedValue();
+		}
+		public float clampedValue() {
+			if (value > 1) {
+				return 1;
+			}
+			if (value < 0) {
+				return 0;
+			}
+			return value;
 		}
 	}
 	public static class ControlKnob extends ControlInput {
@@ -382,12 +400,6 @@ public class MidiControl {
 					changeAmount += (float)(2 * Math.PI);
 				}
 				value -= (float)(changeAmount / 5);
-			}
-			if (value > 1) {
-				value = 1;
-			}
-			if (value < 0) {
-				value = 0;
 			}
 			
 			previousControlVal = controlVal;

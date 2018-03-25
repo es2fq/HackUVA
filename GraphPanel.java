@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Point;
+import java.awt.Font;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.util.ArrayList;
@@ -137,18 +138,38 @@ class GraphPanel extends JPanel {
     			int y = ci.getCenterY();
     			int z = ci.getCenterZ();
                 g2.setColor(Color.RED);
+                g2.setStroke(THIN_STROKE);
+                boolean isBeingEdited = false;
                 if (controllingHandle != null) {
                 	//there is a handle either controlling or hovering over this control knob
                     g2.setColor(Color.GREEN);
+                    drawLine(g2, x, y, z, controllingHandle.x, controllingHandle.y, controllingHandle.z);
+                    if (controllingHandle.pinchedInControlZone == a) {
+                    	isBeingEdited = true;
+                	}	
                 }
-
-                g2.setStroke(THIN_STROKE);
-                int knobWidth = (int)(20 * getXFactor());
-                int knobHeight = (int)(20 * getYFactor());
+                if (isBeingEdited) {
+                	ci.drawScale += (2 - ci.drawScale) * .1f;//then this is the knob currently being edited
+                } else {
+                	ci.drawScale += (1 - ci.drawScale) * .1f;
+                	ci.clampValue();//reset the value so that it feels natural when edited again
+                	//we dont clamp while editing so that if you twist past 0 or 1, it doesnt accidently go back to 0 < n < 1 because of small movements
+                }
+                int knobSize = 40;
+                int knobWidth = (int)(knobSize * getXFactor() * ci.drawScale);
+                int knobHeight = (int)(knobSize * getYFactor() * ci.drawScale);
                 g2.fillOval(getScreenX(x, y, z) - knobWidth / 2, getScreenY(x, y, z) - knobHeight / 2, knobWidth, knobHeight);
-                
+                g2.setFont(new Font("Calibri", Font.PLAIN, (int)(24 * ci.drawScale))); 
+                String label = (""+(100*ci.clampedValue()));
+                label = label.substring(0, Math.min(5, label.length()))+"%";
+                FontMetrics metrics = g2.getFontMetrics();
+                int labelWidth = metrics.stringWidth(label);
+                g2.drawString(label, getScreenX(x, y, z) - labelWidth / 2, getScreenY(x, y, z) - knobHeight / 2 - metrics.getHeight() + 3);
     		}
     	}
+    }
+    private void drawLine(Graphics2D g2, double x1, double y1, double z1, double x2, double y2, double z2) {
+        g2.drawLine(getScreenX(x1, y1, z1), getScreenY(x1, y1, z1), getScreenX(x2, y2, z2), getScreenY(x2, y2, z2));
     }
     private void drawHands(Graphics2D g2) {
 

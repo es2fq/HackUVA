@@ -42,6 +42,7 @@ class GraphPanel extends JPanel {
         super.paintComponent(g);
 
         scores.add(0, 0.0);
+        scores.add(0.0);
 
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -91,6 +92,9 @@ class GraphPanel extends JPanel {
                     g2.drawLine(x0, getHeight() - padding - labelPadding - 1 - pointWidth, x1, padding);
                     g2.setColor(Color.BLACK);
                     String xLabel = i + "";
+                    if (i == 0 || i == scores.size() - 1) {
+                        xLabel = "";
+                    }
                     FontMetrics metrics = g2.getFontMetrics();
                     int labelWidth = metrics.stringWidth(xLabel);
                     g2.drawString(xLabel, x0 - labelWidth / 2, y0 + metrics.getHeight() + 3);
@@ -116,7 +120,7 @@ class GraphPanel extends JPanel {
         
         g2.setStroke(oldStroke);
         g2.setColor(pointColor);
-        for (int i = 0; i < graphPoints.size(); i++) {
+        for (int i = 1; i < graphPoints.size() - 1; i++) {
             int x = graphPoints.get(i).x - pointWidth / 2;
             int y = graphPoints.get(i).y - pointWidth / 2;
             int ovalW = pointWidth;
@@ -135,7 +139,8 @@ class GraphPanel extends JPanel {
         for (Double score : scores) {
             minScore = Math.min(minScore, score);   
         }
-        return minScore;
+        return 0;
+        // return minScore;
     }
     
     private double getMaxScore() {
@@ -143,7 +148,7 @@ class GraphPanel extends JPanel {
         for (Double score : scores) {
             maxScore = Math.max(maxScore, score);
         }
-        return 100;
+        return 130;
         // return maxScore;
     }
     

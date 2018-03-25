@@ -115,7 +115,6 @@ class GraphPanel extends JPanel {
                 g2.drawLine(x0, y0, x1, y1);
             }
         }
-        
 
         Stroke oldStroke = g2.getStroke();
         g2.setColor(lineColor);
@@ -123,7 +122,7 @@ class GraphPanel extends JPanel {
         
         g2.setStroke(oldStroke);
         for (int i = 0; i < xCoords.size(); i++) {
-            double x = xCoords.get(i) + 430;
+            double x = xCoords.get(i);
             double y = yCoords.get(i);
             double z = zCoords.get(i);
             int ovalW = pointWidth;
@@ -157,47 +156,57 @@ class GraphPanel extends JPanel {
         // g2.drawLine(padding + labelPadding + 50, getHeight() - padding * 2 - labelPadding - 27, padding + labelPadding + 50 + 75, getHeight() - padding * 2 - labelPadding - 27 - 50);
 
         // side of box
+        // Polygon p = new Polygon();
+        // int xPoints[] = {padding + labelPadding + 50, padding + labelPadding + 50, getWidth() - padding - 100, getWidth() - padding - 100};
+        // int yPoints[] = {getHeight() - padding * 2 - labelPadding - 7, getHeight() - padding * 2 - labelPadding - 27, getHeight() - padding * 2 - labelPadding - 27, getHeight() - padding * 2 - labelPadding - 7};
+        // for (int i = 0; i < xPoints.length; i++) {
+        //     p.addPoint(xPoints[i], yPoints[i]);
+        // }
+        // g2.setColor(Color.BLACK);
+        // g2.draw(p);
+        // g2.setColor(Color.GRAY);
+        // g2.fillPolygon(p);
+        
         Polygon p = new Polygon();
-        int xPoints[] = {padding + labelPadding + 50, padding + labelPadding + 50, getWidth() - padding - 100, getWidth() - padding - 100};
-        int yPoints[] = {getHeight() - padding * 2 - labelPadding - 7, getHeight() - padding * 2 - labelPadding - 27, getHeight() - padding * 2 - labelPadding - 27, getHeight() - padding * 2 - labelPadding - 7};
-        for (int i = 0; i < xPoints.length; i++) {
-            p.addPoint(xPoints[i], yPoints[i]);
-        }
-        g2.setColor(Color.BLACK);
-        g2.draw(p);
-        g2.setColor(Color.GRAY);
-        g2.fillPolygon(p);
-
-        // top of box
         Polygon p2 = new Polygon();
-        int xPoints2[] = {padding + labelPadding + 50, padding + labelPadding + 50 + 75, getWidth() - padding - 25, getWidth() - padding - 100};
-        int yPoints2[] = {getHeight() - padding * 2 - labelPadding - 27, getHeight() - padding * 2 - labelPadding - 27 - 50, getHeight() - padding * 2 - labelPadding - 27 - 50, getHeight() - padding * 2 - labelPadding - 27};
-        for (int i = 0; i < xPoints2.length; i++) {
-            p2.addPoint(xPoints2[i], yPoints2[i]);
+        Polygon p3 = new Polygon();
+        Polygon p4 = new Polygon();
+        int xPoints[] = {-getWidth() / 2 + 125, -getWidth() / 2 + 125, getWidth() / 2 - 125, getWidth() / 2 - 125};
+        int yPoints[] = {-50, -50, -50, -50};
+        int zPoints[] = {0, 80, 80, 0};
+
+        for (int i = 0; i < xPoints.length; i++) {
+            p.addPoint(getScreenX(xPoints[i], yPoints[i], zPoints[i]), getScreenY(xPoints[i], yPoints[i], zPoints[i]));
+            p2.addPoint(getScreenX(xPoints[i], yPoints[i] - 30, zPoints[i]), getScreenY(xPoints[i], yPoints[i] - 30, zPoints[i]));
         }
+
+        p3.addPoint(getScreenX(xPoints[1], yPoints[1], zPoints[1]), getScreenY(xPoints[1], yPoints[1], zPoints[1]));
+        p3.addPoint(getScreenX(xPoints[1], yPoints[1] - 30, zPoints[1]), getScreenY(xPoints[1], yPoints[1] - 30, zPoints[1]));
+        p3.addPoint(getScreenX(xPoints[2], yPoints[2] - 30, zPoints[2]), getScreenY(xPoints[2], yPoints[2] - 30, zPoints[2]));
+        p3.addPoint(getScreenX(xPoints[2], yPoints[2], zPoints[2]), getScreenY(xPoints[2], yPoints[2], zPoints[2]));
+
+        p4.addPoint(getScreenX(xPoints[2], yPoints[2], zPoints[2]), getScreenY(xPoints[2], yPoints[2], zPoints[2]));
+        p4.addPoint(getScreenX(xPoints[2], yPoints[2] - 30, zPoints[2]), getScreenY(xPoints[2], yPoints[2] - 30, zPoints[2]));
+        p4.addPoint(getScreenX(xPoints[3], yPoints[3] - 30, zPoints[3]), getScreenY(xPoints[3], yPoints[3] - 30, zPoints[3]));
+        p4.addPoint(getScreenX(xPoints[3], yPoints[3], zPoints[3]), getScreenY(xPoints[3], yPoints[3], zPoints[3]));
+
+        g2.setColor(Color.GRAY);
+        g2.fillPolygon(p2);
         g2.setColor(Color.BLACK);
         g2.draw(p2);
         g2.setColor(Color.GRAY);
-        g2.fillPolygon(p2);
-
-        // right of box
-        Polygon p3 = new Polygon();
-        int xPoints3[] = {getWidth() - padding - 25, getWidth() - padding - 25, getWidth() - padding - 100, getWidth() - padding - 100};
-        int yPoints3[] = {getHeight() - padding * 2 - labelPadding - 27 - 50, getHeight() - padding * 2 - labelPadding - 7 - 50, getHeight() - padding * 2 - labelPadding - 7, getHeight() - padding * 2 - labelPadding - 27};
-        for (int i = 0; i < xPoints3.length; i++) {
-            p3.addPoint(xPoints3[i], yPoints3[i]);
-        }
+        g2.fillPolygon(p);
+        g2.setColor(Color.BLACK);
+        g2.draw(p);
+        g2.setColor(Color.GRAY);
+        g2.fillPolygon(p3);
         g2.setColor(Color.BLACK);
         g2.draw(p3);
         g2.setColor(Color.GRAY);
-        g2.fillPolygon(p3);
-
+        g2.fillPolygon(p4);
         g2.setColor(Color.BLACK);
-        for (int i = 0; i < xPoints.length - 1; i++) {
-            g2.drawLine(xPoints[i], yPoints[i], xPoints[i + 1], yPoints[i + 1]);
-            g2.drawLine(xPoints2[i], yPoints2[i], xPoints2[i + 1], yPoints2[i + 1]);
-            g2.drawLine(xPoints3[i], yPoints3[i], xPoints3[i + 1], yPoints3[i + 1]);
-        }
+        g2.draw(p4);
+
         // for (int i = 0; i < graphPoints.size() - 1; i++) {
         //     int x1 = graphPoints.get(i).x;
         //     int y1 = graphPoints.get(i).y;
@@ -208,7 +217,7 @@ class GraphPanel extends JPanel {
     }
 
     private int getScreenX(double x, double y, double z) {
-        return (int) (x - 0.5 * z);
+        return (int) (x - 0.5 * z + 430);
     }
 
     private int getScreenY(double x, double y, double z) {
@@ -241,27 +250,14 @@ class GraphPanel extends JPanel {
         return 170;
         // return maxScore;
     }
-<<<<<<< HEAD
 
     public void setData(List<Double> yCoords, List<Double> xCoords, List<Double> zCoords) {
         this.yCoords = yCoords;
         this.xCoords = xCoords;
         this.zCoords = zCoords;
-=======
-    
-    public void setScores(List<Double> scores) {
-        this.scores = scores;
 
-        this.scores.add(0, 0.0);
-        this.scores.add(0.0);
-
->>>>>>> d665c14947fc4d295f147b169b775b05ef707c0b
         invalidate();
         this.repaint();
-    }
-    
-    public List<Double> getScores() {
-        return yCoords;
     }
     
     public void update() {

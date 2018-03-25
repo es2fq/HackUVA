@@ -126,6 +126,11 @@ class GraphPanel extends JPanel {
             int ovalW = pointWidth;
             int ovalH = pointWidth;
             g2.fillOval(x, y, ovalW, ovalH);
+
+            String pointLabel = "" + scores.get(i);
+            FontMetrics metrics = g2.getFontMetrics();
+            int labelWidth = metrics.stringWidth(pointLabel);
+            g2.drawString(pointLabel, x - labelWidth / 2 - pointWidth, y);
         }
     }   
     
@@ -159,7 +164,7 @@ class GraphPanel extends JPanel {
     }
     
     public List<Double> getScores() {
-        return scores;  
+        return scores;
     }
     
     public void update() {

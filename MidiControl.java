@@ -167,11 +167,11 @@ public class MidiControl {
 		while (true) {
 			try {
 				Thread.sleep(25);
-				if (MidiControl.numInstruments != 0 && MidiControl.receivers[MidiControl.numInstruments - 1] != null) {
-					InputController.update();
-					MidiControl.update();
-					MidiControl.graphPanel.update();
-				}
+//				if (MidiControl.numInstruments != 0 && MidiControl.receivers[MidiControl.numInstruments - 1] != null) {
+//					InputController.update();
+//					MidiControl.update();
+//					MidiControl.graphPanel.update();
+//				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

@@ -22,7 +22,8 @@ import javax.swing.JComboBox;
 import java.util.Arrays;
 import java.awt.event.*;
 import java.lang.Thread;
-import javafx.scene.media.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 /*
 * 

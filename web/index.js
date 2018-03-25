@@ -48,10 +48,12 @@ app.post('/upload', function(req, res){
         db.items.push({
             "name": req.body.name,
             "desc": req.body.desc,
+            "img": Math.floor(Math.random() * 5) + 1, 
             "filename": "midi"+num.toString()+".midi",
         });
+
         fs.writeFile('db.json', JSON.stringify(db), 'utf8', (err));
-        res.send('File uploaded!');
+        res.render('success');
     });
 });
 

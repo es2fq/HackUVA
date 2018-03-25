@@ -40,10 +40,6 @@ class GraphPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        scores.add(0, 0.0);
-        scores.add(0.0);
-
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         
@@ -159,6 +155,10 @@ class GraphPanel extends JPanel {
     
     public void setScores(List<Double> scores) {
         this.scores = scores;
+
+        this.scores.add(0, 0.0);
+        this.scores.add(0.0);
+
         invalidate();
         this.repaint();
     }

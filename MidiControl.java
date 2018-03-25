@@ -79,7 +79,7 @@ public class MidiControl {
 	}
 	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
 	{
-		
+		SpeechDetector sd = new SpeechDetector();
         CoreListener listener = new CoreListener();
 		Controller controller = new Controller();
 

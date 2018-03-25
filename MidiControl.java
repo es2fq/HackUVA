@@ -38,8 +38,9 @@ public class MidiControl {
 	
 	public static Sequence s;
 	public static Track t;
+	public static int midiTicksPerFrame = 30;
 	
-	private static long endTime;
+	private static long startTime;
 	
 	public static JComboBox<String> cb;
 	
@@ -84,6 +85,7 @@ public class MidiControl {
 			}
 		}
 	}
+	public static boolean isRecording = false;
 	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
 	{
 		SpeechDetector sd = new SpeechDetector();
@@ -91,9 +93,12 @@ public class MidiControl {
 		Controller controller = new Controller();
 		VoiceLauncher voiceLauncher = new VoiceLauncher();
 		
-		s = new Sequence(javax.sound.midi.Sequence.PPQ,24);
+		s = new Sequence(javax.sound.midi.Sequence.	SMPTE_30, midiTicksPerFrame);
 		t = s.createTrack();
-		
+
+        // Have the sample listener receive events from the controller
+        controller.addListener(listener);
+
 		byte[] b = {(byte)0xF0, 0x7E, 0x7F, 0x09, 0x01, (byte)0xF7};
 		SysexMessage sm = new SysexMessage();
 		sm.setMessage(b, 6);
@@ -113,6 +118,7 @@ public class MidiControl {
 		mt.setMessage(0x03 ,TrackName.getBytes(), TrackName.length());
 		me = new MidiEvent(mt,(long)0);
 		t.add(me);
+
 		
 		//****  set omni on  ****
 		ShortMessage mm = new ShortMessage();
@@ -132,10 +138,7 @@ public class MidiControl {
 		me = new MidiEvent(mm,(long)0);
 		t.add(me);
 		
-		endTime = System.currentTimeMillis() + 10000;
 		
-		// Have the sample listener receive events from the controller
-		controller.addListener(listener);
 		
 		//Select Device
 		Scanner in = new Scanner(System.in);
@@ -164,7 +167,7 @@ public class MidiControl {
 		System.out.println("How many midi devices would you like to connect? (up to 5)");
 		input = in.nextInt();
 		numInstruments = Math.min(5, input);
-		
+		isRecording = true;
 		for (int a=0; a<numInstruments; a++) {
 			System.out.println("\n\nSelect instrument " + a);
 			int i = 0;
@@ -194,7 +197,7 @@ public class MidiControl {
 			ci.x = Core.worldXLeft + (controllerDimension * a);
 			ci.y = 180;
 			ci.xRange = controllerDimension;
-			ci.yRange = controllerDimension;
+			ci.yRange = 250;
 			ci.instrument = 0;
 			ci.controlNum = 16 + controlInputs.size();
 			controlInputs.add(ci);
@@ -203,9 +206,9 @@ public class MidiControl {
 		for (int a=0; a<numColumns; a++) {
 			ControlInput ci = new ControlSlider();
 			ci.x = Core.worldXLeft + (controllerDimension * a);
-			ci.y = 180 + controllerDimension;
+			ci.y = 180 + 100 + controllerDimension;
 			ci.xRange = controllerDimension;
-			ci.yRange = controllerDimension;
+			ci.yRange = 250;
 			ci.instrument = 0;
 			ci.controlNum = 16 + controlInputs.size();
 			controlInputs.add(ci);
@@ -213,6 +216,7 @@ public class MidiControl {
 		}
 		
 		frame.setVisible(true);
+		startTime = System.currentTimeMillis();
 		
 		Runnable r = new Runnable() {
 			public void run() {
@@ -230,16 +234,29 @@ public class MidiControl {
 		while (true) {
 			try {
 				Thread.sleep(25);
-				if (System.currentTimeMillis() > endTime) {
-					//****  set end of track (meta event) 19 ticks later  ****
-					mt = new MetaMessage();
-					byte[] bet = {}; // empty array	
-					mt.setMessage(0x2F,bet,0);
-					me = new MidiEvent(mt, (long)140);
-					
-					t.add(me);
-					File f = new File("midifile.mid");
-					MidiSystem.write(s, 1, f);
+				if (System.currentTimeMillis() > startTime + 15000) {
+					//wait for no midi notes to be played
+					boolean notePlaying = false;
+					for (HandleMusician m : handleMusicians) {
+						if (m.notePlaying) {
+							notePlaying = true;
+							break;
+						}
+					}
+					if (!notePlaying) {
+						mt = new MetaMessage();
+				        byte[] bet = {}; // empty array
+						mt.setMessage(0x2F,bet,0);
+						me = new MidiEvent(mt, (long)((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame));
+	
+						t.add(me);
+						File f = new File("midifile.mid");
+						isRecording = false;
+						if (!f.exists()) {
+							MidiSystem.write(s, 1, f);
+							System.out.println("done");
+						}
+					}
 				}
 				//				if (MidiControl.numInstruments != 0 && MidiControl.receivers[MidiControl.numInstruments - 1] != null) {
 					//					InputController.update();
@@ -398,21 +415,31 @@ public class MidiControl {
 			try {
 				ShortMessage sm = new ShortMessage(ShortMessage.NOTE_ON, 0, pitch, velocity);
 				receivers[instrument].send(sm, System.nanoTime());
-				t.add(new MidiEvent(sm, (long) 0));
+				if (isRecording) {
+					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame)));
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		public static void noteOff(int pitch, int velocity, int instrument) {
 			try {
-				receivers[instrument].send(new ShortMessage(ShortMessage.NOTE_OFF, 0, pitch, velocity), System.nanoTime());
+				ShortMessage sm = new ShortMessage(ShortMessage.NOTE_OFF, 0, pitch, velocity);
+				receivers[instrument].send(sm, System.nanoTime());
+				if (isRecording) {
+					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame)));
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		public static void controlChange(int knob, int value, int instrument) {
 			try {
-				receivers[instrument].send(new ShortMessage(ShortMessage.CONTROL_CHANGE, 0, knob, value), System.nanoTime());
+				ShortMessage sm = new ShortMessage(ShortMessage.CONTROL_CHANGE, 0, knob, value);
+				receivers[instrument].send(sm, System.nanoTime());
+				if (isRecording) {
+					t.add(new MidiEvent(sm, (long) ((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame)));
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -454,7 +481,7 @@ public class MidiControl {
 				return y + yRange / 2;
 			}
 			public int getCenterZ() {
-				return (int)maxZForControlZone;
+				return (int)maxZForControlZone - 20;
 			}
 			public void clampValue() {
 				value = clampedValue();

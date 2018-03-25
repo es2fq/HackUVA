@@ -2,5 +2,4 @@
 applications:
 - name: MIDIWeb
   memory: 512m
-  buildpack: https://github.com/cloudfoundry/nodejs-buildpack
   instances: 1

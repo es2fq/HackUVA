@@ -132,9 +132,6 @@ public class MidiControl {
 			MidiDevice selectedDevice = MidiSystem.getMidiDevice(midiInfo[input]);
 			selectedDevice.open();
 			receivers[a] = selectedDevice.getReceiver();
-		    if (a > 0) {
-		    	System.out.println(receivers[a] == receivers[a-1]);
-		    }
 		}
 
 		frame.setVisible(true);
@@ -154,6 +151,11 @@ public class MidiControl {
 			
         // Remove the sample listener when done
 	}
+	
+	
+	
+	public static double minZForInstruments = -50;
+	public static double maxZForControlZone = -100;
 	public static void update() {
 		if (InputController.handles.size() > 0) {
 			controlChange(16, (int)(InputController.handles.get(0).y / 10), 0);
@@ -187,8 +189,14 @@ public class MidiControl {
 				if (selectedInstrument >= 0) {
 					//check to see that the selected instrument has stabilized
 					if (handleMusician.pitchHandle.lastFingerChangeTime + 150 < System.currentTimeMillis() || handleMusician.instrumentSet) {
-						selectedInstrument = handleMusician.currentInstrument; // keep the instrument from changing if its been stable
-						handleMusician.instrumentSet = true;
+						if (handleMusician.pitchHandle.z < minZForInstruments && !handleMusician.notePlaying) {
+							//don't start playing anything if the handle is in the control zone
+							selectedInstrument = -1;
+							handleMusician.instrumentSet = false;
+						} else {
+							selectedInstrument = handleMusician.currentInstrument; // keep the instrument from changing if its been stable
+							handleMusician.instrumentSet = true;
+						}
 					} else {
 						if (handleMusician.notePlaying) {
 							noteOff(handleMusician.currentPitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
@@ -197,13 +205,12 @@ public class MidiControl {
 						handleMusician.instrumentSet = false;
 						handleMusician.currentInstrument = selectedInstrument;
 						selectedInstrument = -1;
-						System.out.println(handleMusician.pitchHandle.fingers + ", " + handleMusician.pitchHandle.lastFingerChangeTime +", "+System.currentTimeMillis());
 					}
 				} else {
 					handleMusician.instrumentSet = false; 
 				}
 				
-				//play the note
+				//play the note now that we have selected the instrument for sure
 				if (selectedInstrument >= 0) {
 					if (selectedInstrument == handleMusician.currentInstrument) { // if you have teh same instrument
 						if (handleMusician.notePlaying) {
@@ -241,13 +248,37 @@ public class MidiControl {
 			}
 		}
 		
+		// handle all Handles, for sliders and shit
+		for (InputController.Handle handle : InputController.handles) {
+			if (handle.musician.notePlaying) {
+				continue;//skip handles that are controlling an instrument
+			}
+			if (handle.z < minZForInstruments) {
+				//we are in the control zone
+			}
+			if (handle.z > maxZForControlZone) {
+				//we are in the control zone
+				if (handle.pinchAmount > .5 && handle.pinchAmountPrevious <= .5) {
+					handle.pinchedInControlZone = true;
+				}
+				if (handle.pinchAmount < .5) {
+					handle.pinchedInControlZone = false;
+				}
+				if (handle.pinchedInControlZone) {
+					System.out.println("Handle pinched: "+handle.pinchAmount);
+				}
+			} else {
+				handle.pinchedInControlZone = false;
+			}
+		}
+		
+		
 		graphPanel.update();
 		selectedScale = cb.getSelectedIndex();
 		makePitches(selectedScale);
 	}
 	public static void noteOn(int pitch, int velocity, int instrument) {
 		try {
-			System.out.println("Play note: "+instrument+", "+pitch+", "+velocity);
 			receivers[instrument].send(new ShortMessage(ShortMessage.NOTE_ON, 0, pitch, velocity), System.nanoTime());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -255,7 +286,6 @@ public class MidiControl {
 	}
 	public static void noteOff(int pitch, int velocity, int instrument) {
 		try {
-			System.out.println("Stop note: "+instrument+", "+pitch+", "+velocity);
 			receivers[instrument].send(new ShortMessage(ShortMessage.NOTE_OFF, 0, pitch, velocity), System.nanoTime());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -263,7 +293,6 @@ public class MidiControl {
 	}
 	public static void controlChange(int knob, int value, int instrument) {
 		try {
-			System.out.println("Control change: "+instrument+", "+knob+", "+value);
 			receivers[instrument].send(new ShortMessage(ShortMessage.CONTROL_CHANGE, 0, knob, value), System.nanoTime());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -271,7 +300,9 @@ public class MidiControl {
 	}
 	public static void addNewPitchHandle(InputController.Handle handle) {
 		//set a handle to act as a pitch handle for a musician
-		MidiControl.handleMusicians.add(new MidiControl.HandleMusician(handle));
+		MidiControl.HandleMusician musician = new MidiControl.HandleMusician(handle);
+		handle.musician = musician;
+		MidiControl.handleMusicians.add(musician);
 	}
 	public static class HandleMusician {
 		public InputController.Handle pitchHandle, velocityHandle;

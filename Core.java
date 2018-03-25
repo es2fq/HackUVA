@@ -39,8 +39,9 @@ class CoreListener extends Listener {
             int newFingers = h.fingers().extended().count();
             if (newFingers != newHandle.fingers || newFingers == 0) {
             	newHandle.lastFingerChangeTime = System.currentTimeMillis();
-            	System.out.println("Chainging time: "+System.currentTimeMillis());
             }
+            newHandle.pinchAmountPrevious = newHandle.pinchAmount;
+            newHandle.pinchAmount = h.pinchStrength();
     		newHandle.fingers = newFingers;
 //            newHandle.fingers = newFingers;	
             	

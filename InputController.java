@@ -11,8 +11,10 @@ public class InputController {
 	public static class Handle {
 		public double x, y, z;
 		public int fingers = 0, fingersChangeTo = -1;
-		public boolean isValid = true;
+		public boolean isValid = true, pinchedInControlZone = false;
 		public long lastFrameId, lastFingerChangeTime;
+		public float pinchAmount = 0, pinchAmountPrevious = 0;
+		public MidiControl.HandleMusician musician;
 		//todo: extend this for other leap motion bs
 		public Handle() {
 			

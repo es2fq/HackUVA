@@ -179,18 +179,24 @@ public class MidiControl {
 				if (selectedInstrument > numInstruments - 1) {
 					selectedInstrument = numInstruments - 1;
 				}
+				int setInstrument = -1;
 				if (selectedInstrument >= 0) {
 					//check to see that the selected instrument has stabilized
-					if (selectedInstrument != handleMusician.currentInstrument) { // if you have teh same instrument
-						if (handleMusician.pitchHandle.lastFingerChangeTime + 300 < System.currentTimeMillis()) {
-							selectedInstrument = handleMusician.currentInstrument;//keep the instrument from changing if its been stable
-						} else {
-							handleMusician.currentInstrument = selectedInstrument;
-							handleMusician.pitchHandle.lastFingerChangeTime = System.currentTimeMillis();
-							selectedInstrument = -1;
+					if (handleMusician.pitchHandle.lastFingerChangeTime + 150 < System.currentTimeMillis() || handleMusician.instrumentSet) {
+						selectedInstrument = handleMusician.currentInstrument; // keep the instrument from changing if its been stable
+						handleMusician.instrumentSet = true;
+					} else {
+						if (handleMusician.notePlaying) {
+							noteOff(handleMusician.currentPitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
+							handleMusician.notePlaying = false;
 						}
+						handleMusician.instrumentSet = false;
+						handleMusician.currentInstrument = selectedInstrument;
+						selectedInstrument = -1;
+						System.out.println(handleMusician.pitchHandle.fingers + ", " + handleMusician.pitchHandle.lastFingerChangeTime +", "+System.currentTimeMillis());
 					}
-					
+				} else {
+					handleMusician.instrumentSet = false; 
 				}
 				
 				//play the note
@@ -225,6 +231,7 @@ public class MidiControl {
 						noteOff(handleMusician.currentPitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
 						handleMusician.notePlaying = false;
 						handleMusician.currentPitch = pitch;
+						handleMusician.currentInstrument = setInstrument;
 					}
 				}
 			}
@@ -260,7 +267,7 @@ public class MidiControl {
 		int currentPitch = -1;
 		int currentVelocity = 100;
 		int currentInstrument = 0;
-		boolean notePlaying = false;
+		boolean notePlaying = false, instrumentSet = false;
 		public HandleMusician(InputController.Handle pitchHandle) {
 			this.pitchHandle = pitchHandle;
 		}

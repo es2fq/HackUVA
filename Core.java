@@ -37,14 +37,11 @@ class CoreListener extends Listener {
             newHandle.y = h.stabilizedPalmPosition().getY();
             newHandle.z = h.stabilizedPalmPosition().getZ();
             int newFingers = h.fingers().extended().count();
-            if (newFingers != newHandle.fingers) {
+            if (newFingers != newHandle.fingers || newFingers == 0) {
             	newHandle.lastFingerChangeTime = System.currentTimeMillis();
-            }
-            if (newFingers == 0) {
-            	newHandle.lastFingerChangeTime = 0;
+            	System.out.println("Chainging time: "+System.currentTimeMillis());
             }
     		newHandle.fingers = newFingers;
-    		newHandle.lastFingerChangeTime = 0;
 //            newHandle.fingers = newFingers;	
             	
             newHandle.lastFrameId = frame.id();

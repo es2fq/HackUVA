@@ -198,14 +198,22 @@ public class MidiControl {
 		container.add(startRecordButton);
 		startRecordButton.addActionListener(new ActionListener() { 
 			  public void actionPerformed(ActionEvent e) { 
+				  try {
 				  startRecording();
+				  } catch (Exception e) {
+					  
+				  }
 			  } 
 			} );
 		JButton stopRecordButton = new JButton("Stop Record");
 		container.add(stopRecordButton);
 		stopRecordButton.addActionListener(new ActionListener() { 
 			  public void actionPerformed(ActionEvent e) { 
-			    stopRecording();
+				  try {
+					  stopRecording();
+				  } catch (Exception e) {
+					  
+				  }
 			  } 
 			} );
 		

@@ -22,6 +22,7 @@ import javax.swing.JComboBox;
 import java.util.Arrays;
 import java.awt.event.*;
 import java.lang.Thread;
+import javafx.scene.media.*;
 
 /*
 * 
@@ -600,6 +601,17 @@ public class MidiControl {
 				}
 				
 				previousControlVal = controlVal;
+			}
+		}
+		
+		public static void playFinale() {
+			try {
+			String filename = "finale.mp3";
+			Media hit = new Media(new File(filename).toURI().toString());
+			MediaPlayer mediaPlayer = new MediaPlayer(hit);
+			mediaPlayer.play();
+			} catch (Exception e) {
+				
 			}
 		}
 	}

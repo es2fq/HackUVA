@@ -119,6 +119,9 @@ public class VoiceLauncher {
                     MidiControl.cb.repaint();
                     GraphPanel.setToast("Changing Key to E Minor", 5000);
                 }
+                else if(command.equalsIgnoreCase("hey midi drop the bass")) {
+                	MidiControl.playFinale();
+                }
                 else if(command.equalsIgnoreCase("hey midi bye bye")) {
                 	quit();
                 }

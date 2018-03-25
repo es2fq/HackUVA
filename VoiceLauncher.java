@@ -5,6 +5,9 @@ import edu.cmu.sphinx.api.SpeechResult;
 import java.io.IOException;
 import java.io.*;
 import java.net.URLConnection;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -67,13 +70,18 @@ public class VoiceLauncher {
                 String command = result.getHypothesis();
                 //Match recognized speech with our commands
                 if(command.equalsIgnoreCase("hey midi start recording")) {
+                	MidiControl.startRecording();
                     System.out.println("Starting!");
                 }
                 else if(command.equalsIgnoreCase("hey midi stop recording")) {
+                	MidiControl.stopRecording();
                     System.out.println("Stopping!");
                 }
                 else if(command.equalsIgnoreCase("hey midi upload file")) {
                     System.out.println("Uploading!");
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                	Date date = new Date();
+                    uploadFile("midifile.mid", "My Midi File "+dateFormat.format(date), "I love HackUVA!");
                 }
             }
         }

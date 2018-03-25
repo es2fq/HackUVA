@@ -85,15 +85,12 @@ public class MidiControl {
 			}
 		}
 	}
-	public static boolean startRecording() {
+	public static boolean startRecording() throws InvalidMidiDataException {
 		if (isRecording) {return false;}
 
 		
 		s = new Sequence(javax.sound.midi.Sequence.	SMPTE_30, midiTicksPerFrame);
 		t = s.createTrack();
-
-        // Have the sample listener receive events from the controller
-        controller.addListener(listener);
 
 		isRecording = true;
 		byte[] b = {(byte)0xF0, 0x7E, 0x7F, 0x09, 0x01, (byte)0xF7};
@@ -140,7 +137,7 @@ public class MidiControl {
 		startTime = System.currentTimeMillis();
 		return true;
 	}
-	public static boolean stopRecording() {
+	public static boolean stopRecording() throws InvalidMidiDataException, IOException{
 		if (!isRecording) {
 			return false;
 		}
@@ -154,10 +151,10 @@ public class MidiControl {
 			}
 		}
 		if (!notePlaying) {
-			mt = new MetaMessage();
+			MetaMessage mt = new MetaMessage();
 	        byte[] bet = {}; // empty array
 			mt.setMessage(0x2F,bet,0);
-			me = new MidiEvent(mt, (long)((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame));
+			MidiEvent me = new MidiEvent(mt, (long)((double)(System.currentTimeMillis() - startTime)/1000*30*midiTicksPerFrame));
 
 			t.add(me);
 			File f = new File("midifile.mid");
@@ -167,13 +164,17 @@ public class MidiControl {
 		}
 		return true;
 	}
+	public static Controller controller;
 	public static boolean isRecording = false;
 	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
 	{
 		SpeechDetector sd = new SpeechDetector();
 		CoreListener listener = new CoreListener();
-		Controller controller = new Controller();
+		controller = new Controller();
 		VoiceLauncher voiceLauncher = new VoiceLauncher();
+
+        // Have the sample listener receive events from the controller
+        controller.addListener(listener);
 		
 		
 		

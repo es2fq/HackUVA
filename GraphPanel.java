@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Polygon;
 import java.awt.Point;
+import java.awt.Font;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import com.leapmotion.leap.*;
 import javax.swing.SwingUtilities;
+import java.awt.geom.Ellipse2D;
 
 class GraphPanel extends JPanel {
     JFrame frame;
@@ -28,6 +30,7 @@ class GraphPanel extends JPanel {
     private Color pointColor = new Color(100, 100, 100, 180);
     private Color gridColor = new Color(200, 200, 200, 200);
     private static final Stroke GRAPH_STROKE = new BasicStroke(2f);
+    private static final Stroke THIN_STROKE = new BasicStroke(2f);
     private static final Stroke THICK_STROKE = new BasicStroke(5f);
     private int pointWidth = 10;
     private int numberXDivisions = 10;
@@ -116,18 +119,91 @@ class GraphPanel extends JPanel {
                 g2.drawLine(x0, y0, x1, y1);
             }
         }
+        drawControlInputs(g2);
+        drawHands(g2);
+        
+    }
+    private void drawControlInputs(Graphics2D g2) {
+    	for (int a = 0; a < MidiControl.controlInputs.size(); a++) {
+    		InputController.Handle controllingHandle = null;
+    		MidiControl.ControlInput ci = MidiControl.controlInputs.get(a);
+    		for (InputController.Handle handle : InputController.handles) {
+    			if (handle.closestControlZone == a) {
+    				controllingHandle = handle;
+    				break;
+    			}
+    		}
+			int x = ci.getCenterX();
+			int y = ci.getCenterY();
+			int z = ci.getCenterZ();
+            g2.setColor(Color.RED);
+            g2.setStroke(THIN_STROKE);
+            boolean isBeingEdited = false;
+            if (controllingHandle != null) {
+            	//there is a handle either controlling or hovering over this control knob
+                g2.setColor(Color.GREEN);
+                drawLine(g2, x, y, z, controllingHandle.x, controllingHandle.y, controllingHandle.z);
+                if (controllingHandle.pinchedInControlZone == a) {
+                	isBeingEdited = true;
+            	}	
+            }
+            if (isBeingEdited) {
+            	ci.drawScale += (2 - ci.drawScale) * .1f;//then this is the knob currently being edited
+            } else {
+            	ci.drawScale += (1 - ci.drawScale) * .1f;
+            	ci.clampValue();//reset the value so that it feels natural when edited again
+            	//we dont clamp while editing so that if you twist past 0 or 1, it doesnt accidently go back to 0 < n < 1 because of small movements
+            }
+            Stroke outLine = new BasicStroke(3f * ci.drawScale);
+    		if (ci instanceof MidiControl.ControlKnob) {
+    			//draw the knob
+                int knobSize = 40;
+                int knobWidth = (int)(knobSize * getXFactor() * ci.drawScale);
+                int knobHeight = (int)(knobSize * getYFactor() * ci.drawScale);
+                g2.fillOval(getScreenX(x, y, z) - knobWidth / 2, getScreenY(x, y, z) - knobHeight / 2, knobWidth, knobHeight);
+                g2.setFont(new Font("Calibri", Font.PLAIN, (int)(24 * ci.drawScale))); 
+                String label = (""+(100*ci.clampedValue()));
+                label = label.substring(0, Math.min(5, label.length()))+"%";
+                FontMetrics metrics = g2.getFontMetrics();
+                int labelWidth = metrics.stringWidth(label);
+                g2.drawString(label, getScreenX(x, y, z) + knobWidth / 2, getScreenY(x, y, z) - metrics.getHeight() / 2);
+                g2.setStroke(outLine);
+                g2.setColor(Color.BLACK);
+                g2.draw(new Ellipse2D.Double(getScreenX(x, y, z) - knobWidth / 2, getScreenY(x, y, z) - knobHeight / 2,
+                		knobWidth,
+                		knobHeight));
+    		}
+    		if (ci instanceof MidiControl.ControlSlider) {
+    			//draw the knob
+                int sliderWidth = (int) (20 * ci.drawScale);
+                int sliderHeight = (int) (120 * ci.drawScale);
+                g2.fillRect(getScreenX(x, y, z) - sliderWidth / 2, getScreenY(x, y, z) - sliderHeight / 2, sliderWidth, sliderHeight);
+                g2.setFont(new Font("Calibri", Font.PLAIN, (int)(24 * ci.drawScale))); 
+                String label = (""+(100*ci.clampedValue()));
+                label = label.substring(0, Math.min(5, label.length()))+"%";
+                FontMetrics metrics = g2.getFontMetrics();
+                int labelWidth = metrics.stringWidth(label);
+                g2.drawString(label, getScreenX(x, y, z) + sliderWidth / 2 + 5, getScreenY(x, y, z) - metrics.getHeight() / 2);
+                Stroke baseLine = new BasicStroke(3f * ci.drawScale);
+                g2.setStroke(outLine);
+                g2.setColor(Color.BLACK);
+                g2.drawRect(getScreenX(x, y, z) - sliderWidth / 2, getScreenY(x, y, z) - sliderHeight / 2, sliderWidth, sliderHeight);
+    		}
+    	}
+    }
+    private void drawLine(Graphics2D g2, double x1, double y1, double z1, double x2, double y2, double z2) {
+        g2.drawLine(getScreenX(x1, y1, z1), getScreenY(x1, y1, z1), getScreenX(x2, y2, z2), getScreenY(x2, y2, z2));
+    }
+    private void drawHands(Graphics2D g2) {
 
-        Stroke oldStroke = g2.getStroke();
-        g2.setColor(lineColor);
         g2.setStroke(THICK_STROKE);
         
-        g2.setStroke(oldStroke);
         for (InputController.Handle handle : InputController.handles) {
             double x = handle.x;
             double y = handle.y;
             double z = handle.z;
-            int ovalW = 16;
-            int ovalH = 12;
+            int ovalW = 22;
+            int ovalH = 16;
 
             g2.setColor(Color.BLACK);
             g2.drawLine(getScreenX(x, y, z), getScreenY(x, y, z), getScreenX(x, y, z), getScreenY(x, 0, z));
@@ -153,8 +229,9 @@ class GraphPanel extends JPanel {
                 g2.setColor(Color.GREEN);
             }
             g2.fillOval(getScreenX(x, y, z) - ovalW / 2, getScreenY(x, y, z) - ovalH / 2, ovalW, ovalH);
-            if (handle.pinchedInControlZone) {
-            	handle.pinchDrawRadius += (1.1f - handle.pinchDrawRadius) * 1.2f;
+            
+            if (handle.pinchedInControlZone != -1) {
+            	handle.pinchDrawRadius += (2f - handle.pinchDrawRadius) * .2f;
             } else {
             	handle.pinchDrawRadius = 0;
             }
@@ -168,62 +245,38 @@ class GraphPanel extends JPanel {
             int labelWidth = metrics.stringWidth(pointLabel);
             g2.drawString(pointLabel, getScreenX(x, y, z) - labelWidth / 2 - pointWidth, getScreenY(x, y, z));
         }
-        
-        // create x and y axes 
-        // g2.drawLine(getWidth() / 2 + padding, getHeight() - padding - labelPadding, getWidth() / 2 + padding, padding);
-
-        //bottom 2 lines of box
-        // g2.drawLine(padding + labelPadding + 50, getHeight() - padding * 2 - labelPadding - 7, getWidth() - padding - 100, getHeight() - padding * 2 - labelPadding - 7);
-        // g2.drawLine(padding + labelPadding + 50, getHeight() - padding * 2 - labelPadding - 27, getWidth() - padding - 100, getHeight() - padding * 2 - labelPadding - 27);
-
-        //connecting bottom 2 lines
-        // g2.drawLine(padding + labelPadding + 50, getHeight() - padding * 2 - labelPadding - 7, padding + labelPadding + 50, getHeight() - padding * 2 - labelPadding - 27);
-        // g2.drawLine(getWidth() - padding - 100, getHeight() - padding * 2 - labelPadding - 7, getWidth() - padding - 100, getHeight() - padding * 2 - labelPadding - 27);
-
-        //diagonal lines
-        // g2.drawLine(padding + labelPadding + 50, getHeight() - padding * 2 - labelPadding - 27, padding + labelPadding + 50 + 75, getHeight() - padding * 2 - labelPadding - 27 - 50);
-
-        // side of box
-        // Polygon p = new Polygon();
-        // int xPoints[] = {padding + labelPadding + 50, padding + labelPadding + 50, getWidth() - padding - 100, getWidth() - padding - 100};
-        // int yPoints[] = {getHeight() - padding * 2 - labelPadding - 7, getHeight() - padding * 2 - labelPadding - 27, getHeight() - padding * 2 - labelPadding - 27, getHeight() - padding * 2 - labelPadding - 7};
-        // for (int i = 0; i < xPoints.length; i++) {
-        //     p.addPoint(xPoints[i], yPoints[i]);
-        // }
-        // g2.setColor(Color.BLACK);
-        // g2.draw(p);
-        // g2.setColor(Color.GRAY);
-        // g2.fillPolygon(p);
-        
     }
     
+    Polygon p, p2, p3, p4;
+    
     private void drawTable(Graphics2D g2) {
+    	if (p == null) {
+	        p = new Polygon();
+	        p2 = new Polygon();
+	        p3 = new Polygon();
+	        p4 = new Polygon();
+	        int xPoints[] = {Core.worldXLeft, Core.worldXLeft, Core.worldXRight, Core.worldXRight};
+	        int yPoints[] = {0, 0, 0, 0};
+	        int zPoints[] = {Core.worldZFar, Core.worldZNear, Core.worldZNear, Core.worldZFar};
+	
+	        for (int i = 0; i < xPoints.length; i++) {
+	            p.addPoint(getScreenX(xPoints[i], yPoints[i], zPoints[i]), getScreenY(xPoints[i], yPoints[i], zPoints[i]));
+	            p2.addPoint(getScreenX(xPoints[i], yPoints[i] - 30, zPoints[i]), getScreenY(xPoints[i], yPoints[i] - 30, zPoints[i]));
+	        }
+	
+	        p3.addPoint(getScreenX(xPoints[1], yPoints[1], zPoints[1]), getScreenY(xPoints[1], yPoints[1], zPoints[1]));
+	        p3.addPoint(getScreenX(xPoints[1], yPoints[1] - 30, zPoints[1]), getScreenY(xPoints[1], yPoints[1] - 30, zPoints[1]));
+	        p3.addPoint(getScreenX(xPoints[2], yPoints[2] - 30, zPoints[2]), getScreenY(xPoints[2], yPoints[2] - 30, zPoints[2]));
+	        p3.addPoint(getScreenX(xPoints[2], yPoints[2], zPoints[2]), getScreenY(xPoints[2], yPoints[2], zPoints[2]));
+	
+	        p4.addPoint(getScreenX(xPoints[2], yPoints[2], zPoints[2]), getScreenY(xPoints[2], yPoints[2], zPoints[2]));
+	        p4.addPoint(getScreenX(xPoints[2], yPoints[2] - 30, zPoints[2]), getScreenY(xPoints[2], yPoints[2] - 30, zPoints[2]));
+	        p4.addPoint(getScreenX(xPoints[3], yPoints[3] - 30, zPoints[3]), getScreenY(xPoints[3], yPoints[3] - 30, zPoints[3]));
+	        p4.addPoint(getScreenX(xPoints[3], yPoints[3], zPoints[3]), getScreenY(xPoints[3], yPoints[3], zPoints[3]));
+    	}
 
-        Polygon p = new Polygon();
-        Polygon p2 = new Polygon();
-        Polygon p3 = new Polygon();
-        Polygon p4 = new Polygon();
-        int xPoints[] = {-400, -400, 400, 400};
-        int yPoints[] = {0, 0, 0, 0};
-        int zPoints[] = {-200, 200, 200, -200};
-
-        for (int i = 0; i < xPoints.length; i++) {
-            p.addPoint(getScreenX(xPoints[i], yPoints[i], zPoints[i]), getScreenY(xPoints[i], yPoints[i], zPoints[i]));
-            p2.addPoint(getScreenX(xPoints[i], yPoints[i] - 30, zPoints[i]), getScreenY(xPoints[i], yPoints[i] - 30, zPoints[i]));
-        }
-
-        p3.addPoint(getScreenX(xPoints[1], yPoints[1], zPoints[1]), getScreenY(xPoints[1], yPoints[1], zPoints[1]));
-        p3.addPoint(getScreenX(xPoints[1], yPoints[1] - 30, zPoints[1]), getScreenY(xPoints[1], yPoints[1] - 30, zPoints[1]));
-        p3.addPoint(getScreenX(xPoints[2], yPoints[2] - 30, zPoints[2]), getScreenY(xPoints[2], yPoints[2] - 30, zPoints[2]));
-        p3.addPoint(getScreenX(xPoints[2], yPoints[2], zPoints[2]), getScreenY(xPoints[2], yPoints[2], zPoints[2]));
-
-        p4.addPoint(getScreenX(xPoints[2], yPoints[2], zPoints[2]), getScreenY(xPoints[2], yPoints[2], zPoints[2]));
-        p4.addPoint(getScreenX(xPoints[2], yPoints[2] - 30, zPoints[2]), getScreenY(xPoints[2], yPoints[2] - 30, zPoints[2]));
-        p4.addPoint(getScreenX(xPoints[3], yPoints[3] - 30, zPoints[3]), getScreenY(xPoints[3], yPoints[3] - 30, zPoints[3]));
-        p4.addPoint(getScreenX(xPoints[3], yPoints[3], zPoints[3]), getScreenY(xPoints[3], yPoints[3], zPoints[3]));
-
-        g2.setColor(Color.GRAY);
-        g2.fillPolygon(p2);
+//        g2.setColor(Color.GRAY);
+//        g2.fillPolygon(p2);
         g2.setColor(Color.BLACK);
         g2.draw(p2);
         g2.setColor(Color.GRAY);
@@ -255,13 +308,21 @@ class GraphPanel extends JPanel {
     private int getScreenY(Vector v) {
     	return getScreenY(v.getX(), v.getY(), v.getZ());
     }
+    
+    private double getXFactor() {
+    	return .9;
+    }
+    
+    private double getYFactor() {
+    	return .6;
+    }
 
     private int getScreenX(double x, double y, double z) {
-        return (int) (.9 * x - 0.25 * z)  + width / 2;
+        return (int) (getXFactor() * x - 0.25 * z)  + width / 2;
     }
 
     private int getScreenY(double x, double y, double z) {
-        return (int) (height * 3 / 4 - .5 * y + 0.35 * z);
+        return (int) (height * 4 / 5 - getYFactor() * y + .35 * z);
     }
 
     private int getScreenZ(double x, double y, double z) {

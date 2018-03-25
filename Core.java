@@ -7,11 +7,39 @@ import java.util.Iterator;
 import java.io.IOException;
 
 class CoreListener extends Listener {
+	
     Map<Integer, InputController.Handle> handleMap;
     
     public void onConnect(Controller controller) {
         System.out.println("Connected");
         handleMap = new HashMap<Integer, InputController.Handle>();
+    }
+    public void onDeviceChange(Controller arg0) {
+    	System.out.println("Device Change");
+    }
+    public void onDeviceFailure(Controller arg0) {
+    	System.out.println("onDeviceFailure");
+    }
+    public void onDisconnect(Controller arg0) {
+    	System.out.println("onDisconnect");
+    }
+    public void onExit(Controller arg0) {
+    	System.out.println("onExit");
+    }
+    public void onFocusGained(Controller arg0) {
+    	System.out.println("onFocusGained");
+    }
+    public void onFocusLost(Controller arg0) {
+    	System.out.println("onFocusLost");
+    }
+    public void onServiceConnect(Controller arg0) {
+    	System.out.println("onServiceConnect");
+    }
+    public void onServiceChange(Controller arg0) {
+    	System.out.println("onServiceChange");
+    }
+    public void onServiceDisconnect(Controller arg0) {
+    	System.out.println("onServiceDisconnect");
     }
     
     public void onFrame(Controller controller) {
@@ -70,6 +98,7 @@ class CoreListener extends Listener {
 }
 
 class Core {
+	public static int worldXLeft = -400, worldXRight = 400, worldZFar = -200, worldZNear = 200;
     public static void main(String[] args) {
         // Create a sample listener and controller
         CoreListener listener = new CoreListener();

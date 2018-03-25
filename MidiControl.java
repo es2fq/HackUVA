@@ -192,10 +192,8 @@ public class MidiControl {
 		
 		JPanel container = new JPanel();
 		container.add(graphPanel);
-		container.add(cb);
 
 		JButton startRecordButton = new JButton("Start Record");
-		container.add(startRecordButton);
 		startRecordButton.addActionListener(new ActionListener() { 
 			  public void actionPerformed(ActionEvent e) { 
 				  try {
@@ -206,7 +204,6 @@ public class MidiControl {
 			  } 
 			} );
 		JButton stopRecordButton = new JButton("Stop Record");
-		container.add(stopRecordButton);
 		stopRecordButton.addActionListener(new ActionListener() { 
 			  public void actionPerformed(ActionEvent e) { 
 				  try {
@@ -216,6 +213,38 @@ public class MidiControl {
 				  }
 			  } 
 			} );
+		JButton uploadButton = new JButton("Upload");
+		uploadButton.addActionListener(new ActionListener() { 
+			  public void actionPerformed(ActionEvent e) { 
+				  try {
+					  VoiceLauncher.upload();
+				  } catch (Exception er) {
+					  
+				  }
+			  } 
+			} );
+		JButton quitButton = new JButton("Quit");
+		quitButton.addActionListener(new ActionListener() { 
+			  public void actionPerformed(ActionEvent e) { 
+				  try {
+					  VoiceLauncher.quit();
+				  } catch (Exception er) {
+					  
+				  }
+			  } 
+			} );
+
+		
+		JPanel uiContainer = new JPanel();
+		GridLayout uiButtons = new GridLayout(10, 1);
+		uiContainer.setLayout(uiButtons);
+		uiContainer.add(cb);
+		uiContainer.add(startRecordButton);
+		uiContainer.add(stopRecordButton);
+		uiContainer.add(uploadButton);
+		uiContainer.add(quitButton);
+		container.add(uiContainer);
+
 		
 		JFrame frame = new JFrame("Visualizer");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -53,7 +53,13 @@ public class VoiceLauncher {
             e.printStackTrace();
         }
     }
-    
+    public static void upload() {
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    	Date date = new Date();
+        uploadFile("midifile.mid", "My Midi File "+dateFormat.format(date), "I love HackUVA!");
+        GraphPanel.setToast("Uploading Midi", 5000);
+    }
     public void startListening() {
         //Recognizer object, Pass the Configuration object
         try {
@@ -79,10 +85,7 @@ public class VoiceLauncher {
                 }
                 else if(command.equalsIgnoreCase("hey midi upload file")) {
                     System.out.println("Uploading!");
-                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                	Date date = new Date();
-                    uploadFile("midifile.mid", "My Midi File "+dateFormat.format(date), "I love HackUVA!");
-                    GraphPanel.setToast("Uploading Midi", 5000);
+                    upload();
                 }
                 else if(command.equalsIgnoreCase("hey midi see major")) {
                     System.out.println("Changed to C Major!");
@@ -117,12 +120,7 @@ public class VoiceLauncher {
                     GraphPanel.setToast("Changing Key to E Minor", 5000);
                 }
                 else if(command.equalsIgnoreCase("hey midi bye bye")) {
-                	for (MidiControl.HandleMusician m : MidiControl.handleMusicians) {
-                		if (m.notePlaying) {
-    						MidiControl.noteOff(m.currentPitch, m.currentVelocity, m.currentInstrument);
-                		}
-                	}
-                	System.exit(0);
+                	quit();
                 }
             }
         }
@@ -130,7 +128,15 @@ public class VoiceLauncher {
             e.printStackTrace();
         }
     }
-    
+    public static void quit() {
+
+    	for (MidiControl.HandleMusician m : MidiControl.handleMusicians) {
+    		if (m.notePlaying) {
+				MidiControl.noteOff(m.currentPitch, m.currentVelocity, m.currentInstrument);
+    		}
+    	}
+    	System.exit(0);
+    }
     public void stopListening() {
         try {
             recognize.stopRecognition();

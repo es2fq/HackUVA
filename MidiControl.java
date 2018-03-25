@@ -78,7 +78,7 @@ public class MidiControl {
 	}
 	public static void main(String[] args) throws IOException, MidiUnavailableException, InvalidMidiDataException
 	{
-		makePitches(0);//TODO: remove this test code. currently set the scale to c major
+		
 		
 		
         CoreListener listener = new CoreListener();
@@ -155,6 +155,7 @@ public class MidiControl {
         // Remove the sample listener when done
 	}
 	public static void update() {
+		
 		Iterator<HandleMusician> it = handleMusicians.iterator();
 		while (it.hasNext()) {
 			HandleMusician handleMusician = it.next();
@@ -178,8 +179,18 @@ public class MidiControl {
 				if (selectedInstrument > numInstruments - 1) {
 					selectedInstrument = numInstruments - 1;
 				}
-				if (selectedInstrument > -1) {
+				if (selectedInstrument >= 0) {
 					//check to see that the selected instrument has stabilized
+					if (selectedInstrument != handleMusician.currentInstrument) { // if you have teh same instrument
+						if (handleMusician.pitchHandle.lastFingerChangeTime + 300 < System.currentTimeMillis()) {
+							selectedInstrument = handleMusician.currentInstrument;//keep the instrument from changing if its been stable
+						} else {
+							handleMusician.currentInstrument = selectedInstrument;
+							handleMusician.pitchHandle.lastFingerChangeTime = System.currentTimeMillis();
+							selectedInstrument = -1;
+						}
+					}
+					
 				}
 				
 				//play the note
@@ -222,6 +233,7 @@ public class MidiControl {
 		
 		graphPanel.update();
 		selectedScale = cb.getSelectedIndex();
+		makePitches(selectedScale);
 	}
 	public static void noteOn(int pitch, int velocity, int instrument) {
 		try {

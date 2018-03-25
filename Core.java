@@ -38,7 +38,7 @@ class CoreListener extends Listener {
             newHandle.z = h.stabilizedPalmPosition().getZ();
             int newFingers = h.fingers().extended().count();
             if (newFingers != newHandle.fingers) {
-            	newHandle.lastFingerChangeTime = System.currentTimeMillis()
+            	newHandle.lastFingerChangeTime = System.currentTimeMillis();
             }
             if (newFingers == 0) {
             	newHandle.lastFingerChangeTime = 0;

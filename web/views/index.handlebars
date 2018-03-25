@@ -9,19 +9,18 @@
     <div class="row">
       <div class="col-md-7">
         <a href="#">
-          <img class="img-fluid rounded mb-3 mb-md-0" src="http://placehold.it/700x150" alt="">
+          <img class="img-fluid rounded mb-3 mb-md-0 " src="/img/{{this.img}}.png" alt="">
         </a>
       </div>
       <div class="col-md-5">
         <h3>{{this.name}}</h3>
-        <a class="btn btn-success PlayButton" backup=MIDIjs.play("/midi/{{this.filename}}") onClick=MIDIjs.play("/midi/{{this.filename}}")>Play</a>
-        <p>{{this.desc}}</p>
+        <a class="btn btn-success PlayButton my-2" backup=MIDIjs.play("/midi/{{this.filename}}") onClick=MIDIjs.play("/midi/{{this.filename}}")>Play</a>
+        <p class="my-2">{{this.desc}}</p>
       </div>
     </div>
     <hr>
     {{/each}}
-
-    <hr>
+    
 </div>
 <script>
   $('.PlayButton').on('click', function(){

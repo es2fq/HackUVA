@@ -149,7 +149,7 @@ public class MidiControl {
 					noteOff(handleMusician.currentPitch, handleMusician.currentVelocity, handleMusician.currentInstrument);
 				}
 			} else {
-				int pitchIndex = (int)(handleMusician.pitchHandle.y / 10);
+				int pitchIndex = (int)(handleMusician.pitchHandle.y / 16);
 				if (pitchIndex < 0) {
 					pitchIndex = 0;
 				}
@@ -162,6 +162,10 @@ public class MidiControl {
 				if (selectedInstrument > numInstruments - 1) {
 					selectedInstrument = numInstruments - 1;
 				}
+				if (selectedInstrument > -1) {
+					//check to see that the selected instrument has stabilized
+				}
+				
 				//play the note
 				if (selectedInstrument >= 0) {
 					if (selectedInstrument == handleMusician.currentInstrument) { // if you have teh same instrument

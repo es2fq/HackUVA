@@ -14,6 +14,7 @@ import java.util.Random;
 import java.text.DecimalFormat;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import com.leapmotion.leap.*;
 import javax.swing.SwingUtilities;
 
 class GraphPanel extends JPanel {
@@ -27,6 +28,7 @@ class GraphPanel extends JPanel {
     private Color pointColor = new Color(100, 100, 100, 180);
     private Color gridColor = new Color(200, 200, 200, 200);
     private static final Stroke GRAPH_STROKE = new BasicStroke(2f);
+    private static final Stroke THICK_STROKE = new BasicStroke(5f);
     private int pointWidth = 10;
     private int numberXDivisions = 10;
     private int numberYDivisions = 10;
@@ -92,6 +94,7 @@ class GraphPanel extends JPanel {
             }
             // g2.drawLine(x0, y0, x1, y1); //draw hatches
         }
+
         
         // and for x axis
         for (int i = 0; i < yCoords.size(); i++) {
@@ -119,24 +122,51 @@ class GraphPanel extends JPanel {
 
         Stroke oldStroke = g2.getStroke();
         g2.setColor(lineColor);
-        g2.setStroke(GRAPH_STROKE);
+        g2.setStroke(THICK_STROKE);
         
         g2.setStroke(oldStroke);
-        for (int i = 0; i < xCoords.size(); i++) {
-            double x = xCoords.get(i) + 430;
-            double y = yCoords.get(i);
-            double z = zCoords.get(i);
-            int ovalW = pointWidth;
-            int ovalH = pointWidth;
+        for (InputController.Handle handle : InputController.handles) {
+            double x = handle.x;
+            double y = handle.y;
+            double z = handle.z;
+            int ovalW = 16;
+            int ovalH = 12;
 
             g2.setColor(Color.BLACK);
-            g2.drawLine(getScreenX(x, y, z), getScreenY(x, y, z), getScreenX(x, y, z), getScreenY(x, getHeight(), z));
+            g2.drawLine(getScreenX(x, y, z), getScreenY(x, y, z), getScreenX(x, y, z), getScreenY(x, 0, z));
+            for (Finger finger : handle.hand.fingers()) {
+            	int boneNum = 0;
+                for(Bone.Type boneType : Bone.Type.values()) {
+                    Bone bone = finger.bone(boneType);
+                    Vector base = bone.prevJoint();
+                    Vector tip = bone.nextJoint();
+                    g2.drawLine(getScreenX(base), getScreenY(base), getScreenX(tip), getScreenY(tip));
+                    if (boneNum == 0) {
+                        g2.drawLine(getScreenX(base), getScreenY(base), getScreenX(x, y, z), getScreenY(x, y, z));
+                    }
+                    boneNum++;
+                }
+            }
 
-            g2.setColor(pointColor);
+            if (handle.z > MidiControl.minZForInstruments) {
+                g2.setColor(Color.BLUE);
+            } else if (handle.z > MidiControl.maxZForControlZone) {
+                g2.setColor(Color.BLACK);
+            } else {
+                g2.setColor(Color.GREEN);
+            }
             g2.fillOval(getScreenX(x, y, z) - ovalW / 2, getScreenY(x, y, z) - ovalH / 2, ovalW, ovalH);
+            if (handle.pinchedInControlZone) {
+            	handle.pinchDrawRadius += (1.1f - handle.pinchDrawRadius) * 1.2f;
+            } else {
+            	handle.pinchDrawRadius = 0;
+            }
+            if (handle.pinchDrawRadius > 0) {
+            	g2.drawOval(getScreenX(x, y, z) - (int)(handle.pinchDrawRadius * ovalW / 2), getScreenY(x, y, z) - (int)(handle.pinchDrawRadius * ovalH / 2), (int)(handle.pinchDrawRadius * ovalW), (int)(handle.pinchDrawRadius * ovalH));
+            }
 
             DecimalFormat df = new DecimalFormat(".#");
-            String pointLabel = "(" + df.format(xCoords.get(i)) + ", " + df.format(yCoords.get(i)) + ")";
+            String pointLabel = "(" + df.format(x) + ", " + df.format(y) + ")";
             FontMetrics metrics = g2.getFontMetrics();
             int labelWidth = metrics.stringWidth(pointLabel);
             g2.drawString(pointLabel, getScreenX(x, y, z) - labelWidth / 2 - pointWidth, getScreenY(x, y, z));
@@ -207,8 +237,16 @@ class GraphPanel extends JPanel {
         // }
     }
 
+    private int getScreenX(Vector v) {
+    	return getScreenX(v.getX(), v.getY(), v.getZ());
+    }
+    
+    private int getScreenY(Vector v) {
+    	return getScreenY(v.getX(), v.getY(), v.getZ());
+    }
+
     private int getScreenX(double x, double y, double z) {
-        return (int) (x - 0.5 * z);
+        return (int) (x - 0.5 * z)  + 430;
     }
 
     private int getScreenY(double x, double y, double z) {
@@ -241,39 +279,16 @@ class GraphPanel extends JPanel {
         return 170;
         // return maxScore;
     }
-<<<<<<< HEAD
 
     public void setData(List<Double> yCoords, List<Double> xCoords, List<Double> zCoords) {
         this.yCoords = yCoords;
         this.xCoords = xCoords;
         this.zCoords = zCoords;
-=======
-    
-    public void setScores(List<Double> scores) {
-        this.scores = scores;
-
-        this.scores.add(0, 0.0);
-        this.scores.add(0.0);
-
->>>>>>> d665c14947fc4d295f147b169b775b05ef707c0b
-        invalidate();
-        this.repaint();
-    }
-    
-    public List<Double> getScores() {
-        return yCoords;
-    }
+	}
     
     public void update() {
-        List<Double> currScores = new ArrayList<Double>();
-        List<Double> currXValues = new ArrayList<Double>();
-        List<Double> currZValues = new ArrayList<Double>();
-        List<MidiControl.HandleMusician> handleMusicians = MidiControl.handleMusicians;
-        for (MidiControl.HandleMusician hm : handleMusicians) {
-            currScores.add((double) hm.currentPitch);
-            currXValues.add(hm.pitchHandle.x);
-            currZValues.add(hm.pitchHandle.z);
-        }
-        setData(currScores, currXValues, currZValues);
+    	invalidate();
+    	this.repaint();
     }
+    
 }

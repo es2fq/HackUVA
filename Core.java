@@ -33,9 +33,10 @@ class CoreListener extends Listener {
                 handleMap.put(h.id(), newHandle);
             }
             newHandle = handleMap.get(h.id());
-            newHandle.x = h.stabilizedPalmPosition().getX();
-            newHandle.y = h.stabilizedPalmPosition().getY();
-            newHandle.z = h.stabilizedPalmPosition().getZ();
+            newHandle.hand = h;
+            newHandle.x = h.palmPosition().getX();
+            newHandle.y = h.palmPosition().getY();
+            newHandle.z = h.palmPosition().getZ();
             int newFingers = h.fingers().extended().count();
             if (newFingers != newHandle.fingers || newFingers == 0) {
             	newHandle.lastFingerChangeTime = System.currentTimeMillis();

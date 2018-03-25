@@ -2,6 +2,7 @@ import java.awt.Point;
 import java.awt.MouseInfo;
 import java.awt.PointerInfo;
 import java.util.ArrayList;
+import com.leapmotion.leap.*;
 public class InputController {
 	public static ArrayList<Handle> handles = new ArrayList<Handle>();
 	public static Handle mouseHandle = new Handle();//only for testing with the mouse
@@ -10,9 +11,15 @@ public class InputController {
 	static boolean madeMouseusician = false;
 	public static class Handle {
 		public double x, y, z;
-		public int fingers = 0, fingersChangeTo = -1;
+		public Hand hand;
+		public int fingers = 0, fingersChangeTo = -1, pinchedInControlZone = -1 /*the knob or slider index of what is pinched*/, closestControlZone = -1;
 		public boolean isValid = true;
 		public long lastFrameId, lastFingerChangeTime;
+		public float pinchAmount = 0, pinchAmountPrevious = 0;
+		public MidiControl.HandleMusician musician;
+		
+		
+		public float pinchDrawRadius = 0;
 		//todo: extend this for other leap motion bs
 		public Handle() {
 			

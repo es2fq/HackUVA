@@ -152,7 +152,7 @@ public class MidiControl {
 		for (int a=0; a<numColumns; a++) {
 			ControlInput ci = new ControlSlider();
 			ci.x = Core.worldXLeft + (controllerDimension * a);
-			ci.y = 180 + controllerDimension;
+			ci.y = 180 + 100 + controllerDimension;
 			ci.xRange = controllerDimension;
 			ci.yRange = controllerDimension;
 			ci.instrument = 0;

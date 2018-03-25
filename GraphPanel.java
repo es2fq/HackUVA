@@ -157,11 +157,11 @@ class GraphPanel extends JPanel {
             Stroke outLine = new BasicStroke(3f * ci.drawScale);
     		if (ci instanceof MidiControl.ControlKnob) {
     			//draw the knob
-                int knobSize = 40;
-                int knobWidth = (int)(knobSize * getXFactor() * ci.drawScale);
-                int knobHeight = (int)(knobSize * getYFactor() * ci.drawScale);
+                int knobSize = 30;
+                int knobWidth = (int)(knobSize * ci.drawScale);
+                int knobHeight = (int)(knobSize * ci.drawScale);
                 g2.fillOval(getScreenX(x, y, z) - knobWidth / 2, getScreenY(x, y, z) - knobHeight / 2, knobWidth, knobHeight);
-                g2.setFont(new Font("Calibri", Font.PLAIN, (int)(24 * ci.drawScale))); 
+                g2.setFont(new Font("Calibri", Font.PLAIN, (int)(18 * ci.drawScale))); 
                 String label = (""+(100*ci.clampedValue()));
                 label = label.substring(0, Math.min(5, label.length()))+"%";
                 FontMetrics metrics = g2.getFontMetrics();
@@ -176,9 +176,9 @@ class GraphPanel extends JPanel {
     		if (ci instanceof MidiControl.ControlSlider) {
     			//draw the knob
                 int sliderWidth = (int) (20 * ci.drawScale);
-                int sliderHeight = (int) (120 * ci.drawScale);
+                int sliderHeight = (int) (70 * ci.drawScale);
                 g2.fillRect(getScreenX(x, y, z) - sliderWidth / 2, getScreenY(x, y, z) - sliderHeight / 2, sliderWidth, sliderHeight);
-                g2.setFont(new Font("Calibri", Font.PLAIN, (int)(24 * ci.drawScale))); 
+                g2.setFont(new Font("Calibri", Font.PLAIN, (int)(18 * ci.drawScale))); 
                 String label = (""+(100*ci.clampedValue()));
                 label = label.substring(0, Math.min(5, label.length()))+"%";
                 FontMetrics metrics = g2.getFontMetrics();
@@ -314,7 +314,7 @@ class GraphPanel extends JPanel {
     }
     
     private double getYFactor() {
-    	return .6;
+    	return .5;
     }
 
     private int getScreenX(double x, double y, double z) {
